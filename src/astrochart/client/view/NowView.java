@@ -19,13 +19,14 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class NowView extends Composite implements NowPresenter.Display {
     private final FlexTable contentTable;
+    private final Button updatePositionsButton = new Button("Update Positions");
+    private final Button regenerateChartButton = new Button("Regenerate Chart");
     private final Label nowLabel = new Label();
     private final Label utcLabel = new Label();
     private final Label localJdLabel = new Label();
     private final Label utcJdLabel = new Label();
     private final Label sidLabel = new Label();
     private final Label utcSidLabel = new Label();
-
     private final TextBox locationTextBox = new TextBox();
     private final Button submitCityButton = new Button("Get");
     private final TextBox latitudeTextBox = new TextBox();
@@ -53,6 +54,13 @@ public class NowView extends Composite implements NowPresenter.Display {
         contentTable = new FlexTable();
         row = 0;
 
+        final HorizontalPanel buttonPanel = new HorizontalPanel();
+        buttonPanel.add(updatePositionsButton);
+        buttonPanel.add(regenerateChartButton);
+        contentTable.setWidget(row, 0, buttonPanel);
+        contentTable.getFlexCellFormatter().setColSpan(row, 0, 3);
+        row++;
+        
         if (chart != null) {
        	  	chart.setCoordinateSpaceHeight(600);
        	  	chart.setCoordinateSpaceWidth(600);
@@ -61,12 +69,12 @@ public class NowView extends Composite implements NowPresenter.Display {
        		contentTable.setText(row, 0, "Fail: Your browser doesn't support HTML5 Canvas.");
        	}
         
-        contentTable.setText(row, 1, "Local Time: ");
-        contentTable.getCellFormatter().setVerticalAlignment(row, 1, HasVerticalAlignment.ALIGN_MIDDLE);
-        contentTable.setWidget(row, 2, nowLabel);
-        contentTable.getCellFormatter().setVerticalAlignment(row, 2, HasVerticalAlignment.ALIGN_MIDDLE);
-        row++;
-            
+    	contentTable.setText(row, 1, "Local Time: ");
+    	contentTable.getCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+    	contentTable.setWidget(row, 2, nowLabel);
+    	contentTable.getCellFormatter().setVerticalAlignment(row, 1, HasVerticalAlignment.ALIGN_MIDDLE);
+    	row++;
+    	
         addRow("UTC Time: ", utcLabel);
         addRow("Local JD Time: ", localJdLabel);
         addRow("UTC JD Time: ", utcJdLabel);
@@ -108,7 +116,7 @@ public class NowView extends Composite implements NowPresenter.Display {
         contentTable.setWidget(row, 0, statusLabel);
         contentTable.getFlexCellFormatter().setColSpan(row, 0, 3);
 
-        contentTable.getFlexCellFormatter().setRowSpan(0, 0, row);
+        contentTable.getFlexCellFormatter().setRowSpan(1, 0, row -1); //chart
         
         contentTableDecorator.add(contentTable);
     }
@@ -144,6 +152,16 @@ public class NowView extends Composite implements NowPresenter.Display {
         return this;
     }
 
+    @Override
+    public final Button getUpdatePositionsButton() {
+        return updatePositionsButton;
+    }
+    
+    @Override
+    public final Button getRegenerateChartButton() {
+        return regenerateChartButton;
+    }
+    
     @Override
     public final Label getNowLabel() {
         return nowLabel;

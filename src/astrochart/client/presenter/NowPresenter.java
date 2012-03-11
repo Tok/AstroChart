@@ -63,6 +63,8 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 
     public interface Display {
         Widget asWidget();
+		Button getUpdatePositionsButton();
+		Button getRegenerateChartButton();
 		Canvas getChart();
 		Label getNowLabel();
 		Label getUtcLabel();
@@ -92,6 +94,21 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     }
 
     public final void bind() {
+    	this.display.getUpdatePositionsButton().addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				updateEpoch();
+				processCustomGeocode(false);
+			}
+		});
+
+    	this.display.getRegenerateChartButton().addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				regenerateChart();
+			}
+		});
+    	
     	for (Planet planet : Planet.values()) {
     		this.display.getPlanetCheckBox(planet).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 				@Override
@@ -156,6 +173,19 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
         container.clear();
         container.add(super.getTabPanel());
         
+        updateEpoch();
+		
+		//XXX Experimental HTML5 Geolocation
+		//tryToGetGeolocationFromBrowser();
+		
+		updateGeodataByIp();
+		
+		this.display.getLocationTextBox().setFocus(true);
+    }
+
+    private final void updateEpoch() {
+    	display.getStatusLabel().setText("Updating positions.");
+    	
         localNow = new Date();
         
 		display.getNowLabel().setText(dateTimeUtil.formatLocalDate(localNow));
@@ -169,7 +199,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		display.getLocalSidLabel().setText(dateTimeUtil.formatLocalDate(sidDate));
 		Date utcSidDate = dateTimeUtil.getLocalSidTimeDate(localNow); //also known as GMST
 		display.getUtcSidLabel().setText(dateTimeUtil.formatDateAsUtc(utcSidDate));
-
+		
 		epochService.readEpoch(utcSidDate, new AsyncCallback<Epoch>() {
 			@Override
 			public void onSuccess(Epoch result) {
@@ -177,21 +207,15 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 				for (Planet planet : Planet.values()) {
 					display.getPlanetLabel(planet).setText(result.getPositionString(planet));
 				}
+				display.getStatusLabel().setText("Positions updated."); 
 			}
 			@Override
 			public void onFailure(Throwable caught) {
 				display.getStatusLabel().setText("Fail reading epoch: " + caught.getMessage()); 
 			}
 		});
-
-		//XXX Experimental HTML5 Geolocation
-		//tryToGetGeolocationFromBrowser();
-		
-		updateGeodataByIp();
-		
-		this.display.getLocationTextBox().setFocus(true);
     }
-
+    
     /**
      * Experimental HTML5 feature
      */
@@ -214,6 +238,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     }
 
     private final void updateGeodataByIp() {
+    	display.getStatusLabel().setText("Updating geodata by IP.");
 		geocodeService.getGeocodeDataForIp(new AsyncCallback<GeocodeData>() {
 			@Override
             public void onSuccess(GeocodeData result) {
@@ -227,6 +252,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     }
     
     private final void updateGeodataByCityName() {
+    	display.getStatusLabel().setText("Updating geodata by location name.");
 		final String cityName = display.getLocationTextBox().getText().trim();
 		geocodeService.getGeocodeData(cityName, new AsyncCallback<GeocodeData>() {
 			@Override
@@ -241,6 +267,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     }
     
 	private void processCustomGeocode(final boolean resetCityName) {
+		display.getStatusLabel().setText("Processing custom geocode data.");
 		GeocodeData geocode = new GeocodeData();
 		if (resetCityName) {
 			geocode.setCityName("user input");
@@ -306,7 +333,13 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     }
 
     private final void generateEmptyChart() {
-    	generateChart(new AscendentAndOffset(ZodiacSign.Aries, 0.0D));
+		display.getStatusLabel().setText("Generating empty chart...");
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			@Override
+			public void execute() {
+				generateChart(new AscendentAndOffset(ZodiacSign.Aries, 0.0D));
+			}
+		});		
     }
     
 	private final void generateChart(final AscendentAndOffset ascendent) {
@@ -420,7 +453,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			}
 		}
 		
-		display.getStatusLabel().setText("");
+		display.getStatusLabel().setText("Ready.");
     }
 		
 	private final void drawExcentricLine(final Context2d ctx, final double angle, 

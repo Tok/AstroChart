@@ -94,7 +94,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			@Override
 			public void onClick(ClickEvent event) {
 				updateEpoch();
-				processCustomGeocode(false);
+//				processCustomGeocode(false);
 			}
 		});
 
@@ -171,10 +171,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
         
         updateEpoch();
 		
-		//XXX Experimental HTML5 Geolocation
-		//tryToGetGeolocationFromBrowser();
-		
-		updateGeodataByIp();
+
 		
 		this.display.getLocationTextBox().setFocus(true);
     }
@@ -204,6 +201,10 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 					display.getPlanetLabel(planet).setText(result.getPositionString(planet));
 				}
 				display.getStatusLabel().setText("Positions updated."); 
+
+				//XXX Experimental HTML5 Geolocation
+				//tryToGetGeolocationFromBrowser();
+				updateGeodataByIp();
 			}
 			@Override
 			public void onFailure(Throwable caught) {
@@ -408,7 +409,6 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			writeExcentricInfo(ctx, 8, String.valueOf(house), angle + 15D, ChartProportions.HouseNumber);
 			house++;
 		}
-		
 		
 		if (epoch != null) {
 			//place planet information

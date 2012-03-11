@@ -444,9 +444,9 @@ public class AstrologyUtil {
 
 	public double returnPosition(final double s1, final double s2, final boolean returnDescendent) {
 		if (returnDescendent) {
-			return s2 - returnSign(s1, s2, returnDescendent).getEclipticLongitudeStart();
+			return s2 - returnSign(s1, s2, returnDescendent).getEclipticLongitude();
 		} else {
-			return s1 - returnSign(s1, s2, returnDescendent).getEclipticLongitudeStart();
+			return s1 - returnSign(s1, s2, returnDescendent).getEclipticLongitude();
 		}
     }
 	

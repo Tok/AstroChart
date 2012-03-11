@@ -1,8 +1,6 @@
 package astrochart.client.presenter;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import astrochart.client.service.EpochService;
 import astrochart.client.service.EpochServiceAsync;
 import astrochart.client.service.GeocodeService;
@@ -53,10 +51,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     private final AstrologyUtil astroUtil = new AstrologyUtil();
 	
     private final Display display;
-    
-	private final Map<ZodiacSign, Double> xLetterPos = new HashMap<ZodiacSign, Double>(ZodiacSign.values().length);
-	private final Map<ZodiacSign, Double> yLetterPos = new HashMap<ZodiacSign, Double>(ZodiacSign.values().length);
-	
+
 	private Epoch epoch;
 	private Date localNow;
 	private Date utcNow;
@@ -349,7 +344,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		ctx.setFont("10pt Arial");
 		ctx.fillRect(0, 0, display.getChart().getOffsetWidth(), display.getChart().getOffsetHeight()); //clear ctx
 
-		final double offset = ascendent.getOffset() + ascendent.getAscendent().getEclipticLongitudeStart();
+		final double offset = ascendent.getOffset() + ascendent.getAscendent().getEclipticLongitude();
 
 		ctx.setLineWidth(1D);
 		markFiveDegrees(ctx, offset); 
@@ -370,13 +365,17 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 
 		//put zodiac
 		ctx.setFont("36pt Arial");
-		initLetterPositions(offset);
 		for (ZodiacSign sign : ZodiacSign.values()) {
+			double angle = sign.getEclipticLongitude() + 90D - offset;
+			angle = keepInRange(angle);
+			double colorAngle = 360-angle;
+			colorAngle = keepInRange(colorAngle);
+
 			//draw colored section
 			ctx.beginPath();
 			ctx.setFillStyle(CssColor.make(sign.getColor()));
-			final double start = Math.toRadians(sign.getOffsetAngle() + 240D -90D +offset);
-			final double end = Math.toRadians(sign.getOffsetAngle() + 270D -90D +offset);			
+			final double start = Math.toRadians((sign.getEclipticLongitude() * -1) + 150D +offset);
+			final double end = Math.toRadians((sign.getEclipticLongitude() * -1) + 180D +offset);
 			ctx.arc(getXCenter(), getYCenter(), ChartProportions.getRadius(getHcs(), ChartProportions.OuterEclyptic), start, end, false);
 			ctx.arc(getXCenter(), getYCenter(), ChartProportions.getRadius(getHcs(), ChartProportions.InnerEclyptic), end, start, true);
 			ctx.fill();
@@ -384,13 +383,15 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			ctx.closePath();
 			
 			//draw Signs
-			final Double x = xLetterPos.get(sign);
-			final Double y = yLetterPos.get(sign);
+			final double xSign = getHcs() - 
+					(Math.sin(Math.toRadians(angle + 15D)) * ChartProportions.getRadius(getHcs(), ChartProportions.EclypticCenter)) -23;
+			final double ySign = getHcs() - 
+					(Math.cos(Math.toRadians(angle + 15D)) * ChartProportions.getRadius(getHcs(), ChartProportions.EclypticCenter)) +18;
 			ctx.beginPath();
 			ctx.setFillStyle(CssColor.make("FFFFFF"));
 			ctx.setStrokeStyle(CssColor.make("000000"));
-			ctx.fillText(String.valueOf(sign.getUnicode()), x, y);
-			ctx.strokeText(String.valueOf(sign.getUnicode()), x, y);
+			ctx.fillText(String.valueOf(sign.getUnicode()), xSign, ySign);
+			ctx.strokeText(String.valueOf(sign.getUnicode()), xSign, ySign);
 			ctx.closePath();
 		}
 
@@ -399,7 +400,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		for (Planet planet : Planet.values()) {
 			if (display.getPlanetCheckBox(planet).getValue()) {
 				final ZodiacSign sign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(planet));
-				final double degrees = epoch.getPreciseDegrees(planet) + sign.getEclipticLongitudeStart();
+				final double degrees = epoch.getPreciseDegrees(planet) + sign.getEclipticLongitude();
 				double angle = degrees + 90D - Double.valueOf(offset).intValue(); 
 				angle = keepInRange(angle);
 				drawExcentricLine(ctx, angle, ChartProportions.PlanetMark, ChartProportions.InnerMark); //draw outer planet mark
@@ -413,7 +414,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		//draw houses
 		int house = 1;
 		for (ZodiacSign sign : ZodiacSign.values()) {
-			double angle = sign.getEclipticLongitudeStart() + 90D; 
+			double angle = sign.getEclipticLongitude() + 90D; 
 			angle = keepInRange(angle);
 			ctx.setLineWidth(0.10);
 			drawExcentricLine(ctx, angle, ChartProportions.Inner, ChartProportions.InnerMark); 
@@ -430,12 +431,12 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 				for (Planet secondPlanet : Planet.values()) {
 					if (display.getPlanetCheckBox(secondPlanet).getValue()) {
 						final ZodiacSign firstSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(firstPlanet));
-						final double firstDegrees = epoch.getPreciseDegrees(firstPlanet) + firstSign.getEclipticLongitudeStart();
+						final double firstDegrees = epoch.getPreciseDegrees(firstPlanet) + firstSign.getEclipticLongitude();
 						double firstAngle = firstDegrees + 90D - Double.valueOf(offset).intValue(); 
 						firstAngle = keepInRange(firstAngle);
 
 						final ZodiacSign secondSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(secondPlanet));
-						final double secondDegrees = epoch.getPreciseDegrees(secondPlanet) + secondSign.getEclipticLongitudeStart();
+						final double secondDegrees = epoch.getPreciseDegrees(secondPlanet) + secondSign.getEclipticLongitude();
 						double secondAngle = secondDegrees + 90D - Double.valueOf(offset).intValue(); 
 						secondAngle = keepInRange(secondAngle);
 
@@ -508,19 +509,6 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			ctx.closePath();
 	    }
     }
-	
-	private final void initLetterPositions(final double ascendentOffset) {
-		for (ZodiacSign sign : ZodiacSign.values()) {
-			double angleDegree = sign.getOffsetAngle() - 15D -90D +ascendentOffset;
-			final double angle = Math.toRadians(angleDegree);
-			final double xLetter = ChartProportions.getRadius(getHcs(), ChartProportions.EclypticCenter) + 
-					(Math.sin(angle) * ChartProportions.getRadius(getHcs(), ChartProportions.EclypticCenter)) + (getXCenter() / 15D);
-			final double yLetter = ChartProportions.getRadius(getHcs(), ChartProportions.EclypticCenter) - 
-					(Math.cos(angle) * ChartProportions.getRadius(getHcs(), ChartProportions.EclypticCenter)) + (getYCenter() / 5D);
-			xLetterPos.put(sign, xLetter);
-			yLetterPos.put(sign, yLetter);
-		}
-	}
 
 	/**
 	 * returns the half size of the chart

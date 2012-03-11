@@ -396,22 +396,6 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			ctx.closePath();
 		}
 
-		//place planet information
-		ctx.setLineWidth(0.75D);
-		for (Planet planet : Planet.values()) {
-			if (display.getPlanetCheckBox(planet).getValue()) {
-				final ZodiacSign sign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(planet));
-				final double degrees = epoch.getPreciseDegrees(planet) + sign.getEclipticLongitude();
-				double angle = degrees + 90D - Double.valueOf(offset).intValue(); 
-				angle = keepInRange(angle);
-				drawExcentricLine(ctx, angle, ChartProportions.PlanetMark, ChartProportions.InnerMark); //draw outer planet mark
-				writeExcentricInfo(ctx, 12, String.valueOf(planet.getUnicode()), angle, ChartProportions.PlanetSign);
-				writeExcentricInfo(ctx, 8, epoch.getDegrees(planet) + String.valueOf('\u00B0'), angle, ChartProportions.Degree);
-				writeExcentricInfo(ctx, 8, epoch.getMinutes(planet) + String.valueOf('\u2032'), angle, ChartProportions.Minute);
-				drawExcentricLine(ctx, angle, ChartProportions.Inner, ChartProportions.InnerLine); //draw inner planet mark
-			}
-		}
-		
 		//draw houses
 		int house = 1;
 		for (ZodiacSign sign : ZodiacSign.values()) {
@@ -425,36 +409,55 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			house++;
 		}
 		
-		//draw aspects
-		ctx.setLineWidth(0.2D);
-		for (Planet firstPlanet : Planet.values()) {
-			if (display.getPlanetCheckBox(firstPlanet).getValue()) {
-				for (Planet secondPlanet : Planet.values()) {
-					if (display.getPlanetCheckBox(secondPlanet).getValue()) {
-						final ZodiacSign firstSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(firstPlanet));
-						final double firstDegrees = epoch.getPreciseDegrees(firstPlanet) + firstSign.getEclipticLongitude();
-						double firstAngle = firstDegrees + 90D - Double.valueOf(offset).intValue(); 
-						firstAngle = keepInRange(firstAngle);
+		
+		if (epoch != null) {
+			//place planet information
+			ctx.setLineWidth(0.75D);
+			for (Planet planet : Planet.values()) {
+				if (display.getPlanetCheckBox(planet).getValue()) {
+					final ZodiacSign sign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(planet));
+					final double degrees = epoch.getPreciseDegrees(planet) + sign.getEclipticLongitude();
+					double angle = degrees + 90D - Double.valueOf(offset).intValue(); 
+					angle = keepInRange(angle);
+					drawExcentricLine(ctx, angle, ChartProportions.PlanetMark, ChartProportions.InnerMark); //draw outer planet mark
+					writeExcentricInfo(ctx, 12, String.valueOf(planet.getUnicode()), angle, ChartProportions.PlanetSign);
+					writeExcentricInfo(ctx, 8, epoch.getDegrees(planet) + String.valueOf('\u00B0'), angle, ChartProportions.Degree);
+					writeExcentricInfo(ctx, 8, epoch.getMinutes(planet) + String.valueOf('\u2032'), angle, ChartProportions.Minute);
+					drawExcentricLine(ctx, angle, ChartProportions.Inner, ChartProportions.InnerLine); //draw inner planet mark
+				}
+			}
+			
+			//draw aspects
+			ctx.setLineWidth(0.2D);
+			for (Planet firstPlanet : Planet.values()) {
+				if (display.getPlanetCheckBox(firstPlanet).getValue()) {
+					for (Planet secondPlanet : Planet.values()) {
+						if (display.getPlanetCheckBox(secondPlanet).getValue()) {
+							final ZodiacSign firstSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(firstPlanet));
+							final double firstDegrees = epoch.getPreciseDegrees(firstPlanet) + firstSign.getEclipticLongitude();
+							double firstAngle = firstDegrees + 90D - Double.valueOf(offset).intValue(); 
+							firstAngle = keepInRange(firstAngle);
 
-						final ZodiacSign secondSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(secondPlanet));
-						final double secondDegrees = epoch.getPreciseDegrees(secondPlanet) + secondSign.getEclipticLongitude();
-						double secondAngle = secondDegrees + 90D - Double.valueOf(offset).intValue(); 
-						secondAngle = keepInRange(secondAngle);
+							final ZodiacSign secondSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(secondPlanet));
+							final double secondDegrees = epoch.getPreciseDegrees(secondPlanet) + secondSign.getEclipticLongitude();
+							double secondAngle = secondDegrees + 90D - Double.valueOf(offset).intValue(); 
+							secondAngle = keepInRange(secondAngle);
 
-						final double xFirst = getHcs() - 
-								(Math.sin(Math.toRadians(firstAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
-						final double yFirst = getHcs() - 
-								(Math.cos(Math.toRadians(firstAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
-						final double xSecond = getHcs() - 
-								(Math.sin(Math.toRadians(secondAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
-						final double ySecond = getHcs() - 
-								(Math.cos(Math.toRadians(secondAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
-						drawLine(xFirst, yFirst, xSecond, ySecond);
+							final double xFirst = getHcs() - 
+									(Math.sin(Math.toRadians(firstAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
+							final double yFirst = getHcs() - 
+									(Math.cos(Math.toRadians(firstAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
+							final double xSecond = getHcs() - 
+									(Math.sin(Math.toRadians(secondAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
+							final double ySecond = getHcs() - 
+									(Math.cos(Math.toRadians(secondAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
+							drawLine(xFirst, yFirst, xSecond, ySecond);
+						}
 					}
 				}
 			}
 		}
-		
+
 		display.getStatusLabel().setText("Ready.");
     }
 		

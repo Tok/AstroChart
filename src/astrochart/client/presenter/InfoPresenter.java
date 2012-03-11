@@ -23,7 +23,7 @@ public class InfoPresenter extends AbstractTabPresenter implements Presenter {
         this.display = view;
     }
 
-    public void bind() {
+    public final void bind() {
     }
 
     @Override
@@ -35,7 +35,7 @@ public class InfoPresenter extends AbstractTabPresenter implements Presenter {
     }
 
     //formatter:off
-    private void prepareTable() {
+    private final void prepareTable() {
         display.getInfoList().removeAllRows();
         display.getInfoList().getColumnFormatter().setWidth(0, "100px");
 

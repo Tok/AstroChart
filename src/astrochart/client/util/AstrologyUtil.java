@@ -96,7 +96,7 @@ public class AstrologyUtil {
 	 * @return
 	 */
 	public double calculateEclipticalLength(double eclipticLongitude, double meanAnormaly) {
-		double eccentricity = 0.0167D;
+		final double eccentricity = 0.0167D;
 		double el = eclipticLongitude % 360D;
 		double ma = meanAnormaly % 360D;
 		
@@ -107,7 +107,7 @@ public class AstrologyUtil {
 //				(1.915D * Math.sin(ma)) + 
 //				(0.020D * Math.sin(2 * ma)); 
 		
-		double result = el + 
+		final double result = el + 
 			( 	(2 * eccentricity * Math.sin(ma)) + 
 				((5.0D / 4.0D) * Math.pow(eccentricity, 2) * Math.sin(2 * eccentricity)	) 
 			);
@@ -115,7 +115,7 @@ public class AstrologyUtil {
 		return convertRadiansToDegree(result);
     }
 	
-	public double calculateEclipticInclination(final double julianDayNumber) {
+	public final double calculateEclipticInclination(final double julianDayNumber) {
 		return 23.439D - (0.0000004D * julianDayNumber);
 	}
 	
@@ -129,7 +129,7 @@ public class AstrologyUtil {
 		eclipticInclination = convertDegreeToRadians(eclipticInclination);
 		eclipticalLength = convertDegreeToRadians(eclipticalLength);
 		
-		double argument = (Math.cos(eclipticInclination) * Math.sin(eclipticalLength)) / Math.cos(eclipticalLength);
+		final double argument = (Math.cos(eclipticInclination) * Math.sin(eclipticalLength)) / Math.cos(eclipticalLength);
 		double result = Math.atan(argument);
 		
 //		http://www.saao.ac.za/public-info/sun-moon-stars/sun-index/how-to-calculate-altaz/
@@ -150,7 +150,7 @@ public class AstrologyUtil {
 		eclipticInclination = convertDegreeToRadians(eclipticInclination);
 		eclipticalLength = convertDegreeToRadians(eclipticalLength);
 		
-		double result = Math.asin(Math.sin(eclipticInclination) * Math.sin(eclipticalLength));
+		final double result = Math.asin(Math.sin(eclipticInclination) * Math.sin(eclipticalLength));
 		
 		return convertRadiansToDegree(result);
 	}
@@ -273,7 +273,7 @@ public class AstrologyUtil {
 	}
 	
 	public final double calculateSolarDeclination(final double solarEclipticalLongitude) {
-		double result = Math.asin(
+		final double result = Math.asin(
 				Math.sin(convertDegreeToRadians(solarEclipticalLongitude)) *
 				Math.sin(convertDegreeToRadians(23.45D))
 		);
@@ -297,7 +297,7 @@ public class AstrologyUtil {
 	}
 	
 	public final double calculateExactHourAngle(final double latitude, final double solarDeclination) {
-		double result =	
+		final double result =	
 			Math.acos(
 				(Math.sin(convertDegreeToRadians(-0.83D)) -
 				(Math.sin(convertDegreeToRadians(latitude)) *
@@ -407,7 +407,7 @@ public class AstrologyUtil {
 	 * @return
 	 */
 	public final double calculateEclipticLongitudeJ2000Tangens(double localSiderealDegrees, double latitude) {
-		double tanLambda = 
+		final double tanLambda = 
 				(Math.cos(Math.toRadians(localSiderealDegrees)) * -1) /
 				((Math.sin(Math.toRadians(localSiderealDegrees)) *
 				Math.cos(Math.toRadians(EARTH_INCLINATION_J2000))) +
@@ -430,11 +430,11 @@ public class AstrologyUtil {
 	    return firstS1;
     }
 
-	public double getSecondHorizontEclipticSection(final double eclipticLongitudeTan) {
+	public final double getSecondHorizontEclipticSection(final double eclipticLongitudeTan) {
 	    return getFirstHorizontEclipticSection(eclipticLongitudeTan) + 180D;
     }
 
-	public ZodiacSign returnSign(final double s1, final double s2, final boolean returnDescendent) {
+	public final ZodiacSign returnSign(final double s1, final double s2, final boolean returnDescendent) {
 		if (returnDescendent) {
 			return ZodiacSign.getSignAtDegree(s2);
 		} else {
@@ -442,7 +442,7 @@ public class AstrologyUtil {
 		}
     }
 
-	public double returnPosition(final double s1, final double s2, final boolean returnDescendent) {
+	public final double returnPosition(final double s1, final double s2, final boolean returnDescendent) {
 		if (returnDescendent) {
 			return s2 - returnSign(s1, s2, returnDescendent).getEclipticLongitude();
 		} else {
@@ -450,7 +450,7 @@ public class AstrologyUtil {
 		}
     }
 	
-	public AscendentAndOffset determineAscendent(final Date utcDate, final double longitude, final double latitude) {
+	public final AscendentAndOffset determineAscendent(final Date utcDate, final double longitude, final double latitude) {
 		final double jd = dateTimeUtil.getJdTimeDate(utcDate);
 		final double siderealDegrees = dateTimeUtil.getSiderealDegrees(jd);
 		final double localSiderealDegrees = dateTimeUtil.getLocalSiderealDegrees(siderealDegrees, longitude);

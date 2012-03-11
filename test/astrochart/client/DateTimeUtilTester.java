@@ -68,7 +68,7 @@ public class DateTimeUtilTester extends GWTTestCase {
 	*/
 
 	@Override
-    public String getModuleName() {
+    public final String getModuleName() {
 	    return "astrochart.AstroChart";
     }
 }

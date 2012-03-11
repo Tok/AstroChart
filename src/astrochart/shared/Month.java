@@ -14,18 +14,18 @@ public enum Month {
 	November(11), 
 	December(12);
 	
-	final int number;
+	private final int number;
 	
 	private Month(final int number) {
         this.number = number;
     }
     
-    public int getNumber() {
+    public final int getNumber() {
         return number;
     }
     
     @Override
-    public String toString() {
+    public final String toString() {
         return this.name();
     }
 }

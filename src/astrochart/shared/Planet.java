@@ -14,10 +14,10 @@ public enum Planet {
 	Neptune(  11, '\u2646', true,  true), 
 	Pluto(    12, '\u2647', true,  true);
 
-	private int token;
-	private char unicode;
-	private boolean isBody;
-	private boolean isOuter;
+	private final int token;
+	private final char unicode;
+	private final boolean isBody;
+	private final boolean isOuter;
 	
 	private Planet(final int token, final char unicode, 
 			final boolean isBody, final boolean isOuter) {
@@ -27,24 +27,24 @@ public enum Planet {
 		this.isOuter = isOuter;
     }
     
-    public int getToken() {
+    public final int getToken() {
     	return token;
     }
     
-    public char getUnicode() {
+    public final char getUnicode() {
     	return unicode;
     }
     
-    public boolean isBody() {
+    public final boolean isBody() {
     	return isBody;
     }
     
-    public boolean isOuter() {
+    public final boolean isOuter() {
     	return isOuter;
     }
     
 	@Override
-    public String toString() {
+    public final String toString() {
         return this.name();
     }
 }

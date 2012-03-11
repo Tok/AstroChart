@@ -69,7 +69,7 @@ public class DateTimeUtil {
 	 * @return
 	 */
 	public final Date getLocalSidTimeDate(final Date date) {
-		double jd = getJdTimeDate(date);			
+		final double jd = getJdTimeDate(date);			
 
 		/*
 		final double a = 18.697374558D + (24.06570982441908D * (jd - 2451545.0D));
@@ -234,7 +234,7 @@ public class DateTimeUtil {
 	    return decimalHours;
     }
 
-	public double getLocalSiderealDegrees(double siderealDegrees, double longitude) {
+	public final double getLocalSiderealDegrees(double siderealDegrees, double longitude) {
 		double result = (siderealDegrees % 360D) + longitude;
 		if (result < 0) {
 			result = result + 360D;

@@ -41,12 +41,12 @@ public class GeocodeServiceImpl extends RemoteServiceServlet implements GeocodeS
 	private final GeocodeData makeGeocodeRequest(final String geocodeUrl) {
 		GeocodeData result;
 		try {
-			URL url = new URL(geocodeUrl);		
-			BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-			JsonParser parser = new JsonParser();
-			JsonElement element = parser.parse(reader);
+			final URL url = new URL(geocodeUrl);		
+			final BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+			final JsonParser parser = new JsonParser();
+			final JsonElement element = parser.parse(reader);
 			reader.close();
-			JsonObject rootObject = element.getAsJsonObject();
+			final JsonObject rootObject = element.getAsJsonObject();
 			result = parseJsonGeocodeResult(rootObject);
 		} catch (MalformedURLException e) {
 			result = new GeocodeData();
@@ -62,21 +62,21 @@ public class GeocodeServiceImpl extends RemoteServiceServlet implements GeocodeS
 		return result;
 	}
 
-	private GeocodeData parseJsonGeocodeResult(final JsonObject rootObject) {
+	private final GeocodeData parseJsonGeocodeResult(final JsonObject rootObject) {
 		final GeocodeData result = new GeocodeData();
-		JsonArray array = rootObject.getAsJsonArray("results");
+		final JsonArray array = rootObject.getAsJsonArray("results");
 		if (array.size() > 0) {
-			JsonObject firstResult = array.get(0).getAsJsonObject();
+			final JsonObject firstResult = array.get(0).getAsJsonObject();
 
-			JsonElement address = firstResult.get("formatted_address");
+			final JsonElement address = firstResult.get("formatted_address");
 			result.setCityName(address.getAsString());
 		
-			JsonElement geometryElement = firstResult.get("geometry");
-			JsonElement locationElement = geometryElement.getAsJsonObject().get("location");
+			final JsonElement geometryElement = firstResult.get("geometry");
+			final JsonElement locationElement = geometryElement.getAsJsonObject().get("location");
 		
-			JsonElement latElement = locationElement.getAsJsonObject().get("lat");
+			final JsonElement latElement = locationElement.getAsJsonObject().get("lat");
 			result.setLatitude(latElement.getAsDouble());
-			JsonElement lngElement = locationElement.getAsJsonObject().get("lng");
+			final JsonElement lngElement = locationElement.getAsJsonObject().get("lng");
 			result.setLongitude(lngElement.getAsDouble());
 		} else {
 			result.setCityName("Location not found.");
@@ -89,19 +89,19 @@ public class GeocodeServiceImpl extends RemoteServiceServlet implements GeocodeS
 	private final GeocodeData makeIpGeocodeRequest(final String ipGeocodeUrl) {
 		GeocodeData result;
 		try {
-			URL url = new URL(ipGeocodeUrl);		
-			BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-			JsonParser parser = new JsonParser();
-			JsonElement element = parser.parse(reader);
+			final URL url = new URL(ipGeocodeUrl);		
+			final BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+			final JsonParser parser = new JsonParser();
+			final JsonElement element = parser.parse(reader);
 			reader.close();
-			JsonObject rootObject = element.getAsJsonObject();
+			final JsonObject rootObject = element.getAsJsonObject();
 			result = parseJsonIpGeocodeResult(rootObject);
-		} catch (MalformedURLException e) {
+		} catch (final MalformedURLException e) {
 			result = new GeocodeData();
 			result.setCityName("Error finding location.");
 			result.setLatitude(0.0D);
 			result.setLongitude(0.0D);
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			result = new GeocodeData();
 			result.setCityName("Error finding location.");
 			result.setLatitude(0.0D);
@@ -110,18 +110,18 @@ public class GeocodeServiceImpl extends RemoteServiceServlet implements GeocodeS
 		return result;
 	}
 	
-	private GeocodeData parseJsonIpGeocodeResult(final JsonObject rootObject) {
+	private final GeocodeData parseJsonIpGeocodeResult(final JsonObject rootObject) {
 		final GeocodeData result = new GeocodeData();
-		JsonElement cityElement = rootObject.getAsJsonObject().get("city");
+		final JsonElement cityElement = rootObject.getAsJsonObject().get("city");
 		result.setCityName(cityElement.getAsString());
-		JsonElement latElement = rootObject.getAsJsonObject().get("latitude");
+		final JsonElement latElement = rootObject.getAsJsonObject().get("latitude");
 		result.setLatitude(latElement.getAsDouble());
-		JsonElement lngElement = rootObject.getAsJsonObject().get("longitude");
+		final JsonElement lngElement = rootObject.getAsJsonObject().get("longitude");
 		result.setLongitude(lngElement.getAsDouble());
 		return result;
 	}
 	
-    final String encode(final String in) {
+    private final String encode(final String in) {
         String out = in.replaceAll(" ", "%20");
         return out;
     }

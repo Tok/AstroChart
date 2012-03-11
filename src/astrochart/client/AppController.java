@@ -69,7 +69,7 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
         });
     }
 
-    private void doEditTermCancelled() {
+    private final void doEditTermCancelled() {
     	History.newItem("now/");
     }
 

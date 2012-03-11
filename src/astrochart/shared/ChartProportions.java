@@ -15,13 +15,13 @@ public enum ChartProportions {
 	InnerLine(0.44D),
 	Inner(0.40D);
 	
-	final double relativeRadius;
+	private final double relativeRadius;
 	
 	private ChartProportions(final double relativeRadius) {
         this.relativeRadius = relativeRadius;
     }
 	
-    public double getRelativeRadius() {
+    public final double getRelativeRadius() {
         return relativeRadius;
     }
 
@@ -30,7 +30,7 @@ public enum ChartProportions {
 	}
 
     @Override
-    public String toString() {
+    public final String toString() {
         return this.name();
     }
 }

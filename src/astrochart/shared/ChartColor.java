@@ -8,7 +8,7 @@ public enum ChartColor {
 	Yellow("#FFF200"),
 	Green("#22B14C");
 	
-	final String hex;
+	private final String hex;
 	
 	private ChartColor(final String hex) {
         this.hex = hex;

@@ -83,8 +83,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		Label getSunPositionLabel();
     }
 
-    public NowPresenter(final HandlerManager eventBus, final TabPanel tabPanel,
-            final Display view) {
+    public NowPresenter(final HandlerManager eventBus, final TabPanel tabPanel, final Display view) {
         super(eventBus, tabPanel);
         this.display = view;
     }
@@ -94,17 +93,14 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			@Override
 			public void onClick(ClickEvent event) {
 				updateEpoch();
-//				processCustomGeocode(false);
 			}
 		});
-
     	this.display.getRegenerateChartButton().addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				regenerateChart();
 			}
-		});
-    	
+		});    	
     	for (Planet planet : Planet.values()) {
     		this.display.getPlanetCheckBox(planet).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 				@Override
@@ -112,8 +108,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 					regenerateChart();
 				}
 			});
-    	}
-    	
+    	}    	
     	this.display.getLocationTextBox().addKeyUpHandler(new KeyUpHandler() {
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
@@ -121,15 +116,13 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 					updateGeodataByCityName();
 				}
 			}
-		});
-    	
+		});    	
     	this.display.getSubmitCityButton().addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				updateGeodataByCityName();
 			}
-		});
-    	
+		});    	
     	this.display.getLatitudeTextBox().addKeyUpHandler(new KeyUpHandler() {
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
@@ -137,15 +130,13 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 					processCustomGeocode(true);
 				}
 			}
-		});
-    	
+		});    	
     	this.display.getSubmitLatitudeButton().addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				processCustomGeocode(true);
 			}
-		});
-    	
+		});    	
     	this.display.getLongitudeTextBox().addKeyUpHandler(new KeyUpHandler() {
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
@@ -153,8 +144,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 					processCustomGeocode(true);
 				}
 			}
-		});
-    	
+		});    	
     	this.display.getSubmitLongitudeButton().addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -191,9 +181,9 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		display.getLocalJdLabel().setText(dateTimeUtil.getFormattedJdTimeDate(localNow));
 		display.getUtcJdLabel().setText(dateTimeUtil.getFormattedJdTimeDate(utcNow));
 
-		Date sidDate = dateTimeUtil.getLocalSidTimeDate(localNow); //also known as LST
+		final Date sidDate = dateTimeUtil.getLocalSidTimeDate(localNow); //also known as LST
 		display.getLocalSidLabel().setText(dateTimeUtil.formatLocalDate(sidDate));
-		Date utcSidDate = dateTimeUtil.getLocalSidTimeDate(localNow); //also known as GMST
+		final Date utcSidDate = dateTimeUtil.getLocalSidTimeDate(localNow); //also known as GMST
 		display.getUtcSidLabel().setText(dateTimeUtil.formatDateAsUtc(utcSidDate));
 		
 		epochService.readEpoch(utcSidDate, new AsyncCallback<Epoch>() {
@@ -204,7 +194,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 					display.getPlanetLabel(planet).setText(result.getPositionString(planet));
 				}
 				display.getStatusLabel().setText("Positions updated."); 
-				processCustomGeocode(true);
+				processCustomGeocode(false);
 			}
 			@Override
 			public void onFailure(Throwable caught) {
@@ -218,11 +208,11 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
      */
     @SuppressWarnings("unused")
     private final void tryToGetGeolocationFromBrowser() {
-		Geolocation geolocation = Geolocation.getIfSupported(); //experimental
+		final Geolocation geolocation = Geolocation.getIfSupported(); //experimental
 		geolocation.getCurrentPosition(new Callback<Position, PositionError>() {
 			@Override
 			public void onSuccess(Position result) {
-				Coordinates coords = result.getCoordinates();
+				final Coordinates coords = result.getCoordinates();
 				display.getLatitudeTextBox().setText(String.valueOf(coords.getLatitude()));
 				display.getLongitudeTextBox().setText(String.valueOf(coords.getLongitude()));
 				processCustomGeocode(true);
@@ -263,9 +253,9 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		});
     }
     
-	private void processCustomGeocode(final boolean resetCityName) {
+	private final void processCustomGeocode(final boolean resetCityName) {
 		display.getStatusLabel().setText("Processing custom geocode data.");
-		GeocodeData geocode = new GeocodeData();
+		final GeocodeData geocode = new GeocodeData();
 		if (resetCityName) {
 			geocode.setCityName("user input");
 			this.display.getLocationTextBox().setText("user input");
@@ -340,7 +330,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     }
     
 	private final void generateChart(final AscendentAndOffset ascendent) {
-		Context2d ctx = display.getChart().getContext2d();
+		final Context2d ctx = display.getChart().getContext2d();
 		ctx.setStrokeStyle(CssColor.make(ChartColor.Black.getHex()));
 		ctx.setFillStyle(CssColor.make(ChartColor.White.getHex()));
 		ctx.setFont("10pt Arial");
@@ -367,11 +357,8 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 
 		//put zodiac
 		ctx.setFont("36pt Arial");
-		for (ZodiacSign sign : ZodiacSign.values()) {
-			double angle = sign.getEclipticLongitude() + 90D - offset;
-			angle = keepInRange(angle);
-			double colorAngle = 360-angle;
-			colorAngle = keepInRange(colorAngle);
+		for (final ZodiacSign sign : ZodiacSign.values()) {
+			final double angle = keepInRange(sign.getEclipticLongitude() + 90D - offset);
 
 			//draw colored section
 			ctx.beginPath();
@@ -399,9 +386,8 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 
 		//draw houses
 		int house = 1;
-		for (ZodiacSign sign : ZodiacSign.values()) {
-			double angle = sign.getEclipticLongitude() + 90D; 
-			angle = keepInRange(angle);
+		for (final ZodiacSign sign : ZodiacSign.values()) {
+			final double angle = keepInRange(sign.getEclipticLongitude() + 90D); 
 			ctx.setLineWidth(0.10);
 			drawExcentricLine(ctx, angle, ChartProportions.Inner, ChartProportions.InnerMark); 
 			drawExcentricLine(ctx, angle, ChartProportions.OuterEclyptic, ChartProportions.Outer); 
@@ -413,12 +399,11 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		if (epoch != null) {
 			//place planet information
 			ctx.setLineWidth(0.75D);
-			for (Planet planet : Planet.values()) {
+			for (final Planet planet : Planet.values()) {
 				if (display.getPlanetCheckBox(planet).getValue()) {
 					final ZodiacSign sign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(planet));
 					final double degrees = epoch.getPreciseDegrees(planet) + sign.getEclipticLongitude();
-					double angle = degrees + 90D - Double.valueOf(offset).intValue(); 
-					angle = keepInRange(angle);
+					final double angle = keepInRange(degrees + 90D - Double.valueOf(offset).intValue());
 					drawExcentricLine(ctx, angle, ChartProportions.PlanetMark, ChartProportions.InnerMark); //draw outer planet mark
 					writeExcentricInfo(ctx, 12, String.valueOf(planet.getUnicode()), angle, ChartProportions.PlanetSign);
 					writeExcentricInfo(ctx, 8, epoch.getDegrees(planet) + String.valueOf('\u00B0'), angle, ChartProportions.Degree);
@@ -429,20 +414,16 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			
 			//draw aspects
 			ctx.setLineWidth(0.2D);
-			for (Planet firstPlanet : Planet.values()) {
+			for (final Planet firstPlanet : Planet.values()) {
 				if (display.getPlanetCheckBox(firstPlanet).getValue()) {
-					for (Planet secondPlanet : Planet.values()) {
+					for (final Planet secondPlanet : Planet.values()) {
 						if (display.getPlanetCheckBox(secondPlanet).getValue()) {
 							final ZodiacSign firstSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(firstPlanet));
 							final double firstDegrees = epoch.getPreciseDegrees(firstPlanet) + firstSign.getEclipticLongitude();
-							double firstAngle = firstDegrees + 90D - Double.valueOf(offset).intValue(); 
-							firstAngle = keepInRange(firstAngle);
-
+							final double firstAngle = keepInRange(firstDegrees + 90D - Double.valueOf(offset).intValue());
 							final ZodiacSign secondSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(secondPlanet));
 							final double secondDegrees = epoch.getPreciseDegrees(secondPlanet) + secondSign.getEclipticLongitude();
-							double secondAngle = secondDegrees + 90D - Double.valueOf(offset).intValue(); 
-							secondAngle = keepInRange(secondAngle);
-
+							final double secondAngle = keepInRange(secondDegrees + 90D - Double.valueOf(offset).intValue()); 
 							final double xFirst = getHcs() - 
 									(Math.sin(Math.toRadians(firstAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
 							final double yFirst = getHcs() - 
@@ -534,7 +515,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		return display.getChart().getOffsetHeight() / 2;
 	}
 	
-	private double keepInRange(final double angle) {
+	private final double keepInRange(final double angle) {
 		double result = angle;
 		while (result < 0D) {
 			result = result + 360D;

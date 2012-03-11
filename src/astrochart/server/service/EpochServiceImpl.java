@@ -26,7 +26,7 @@ public class EpochServiceImpl extends RemoteServiceServlet implements EpochServi
     private final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     
 	@Override
-    public Epoch readEpoch(final Date date) {
+    public final Epoch readEpoch(final Date date) {
 //		final long low = date.getTime() - ((MILLISECONDS_PER_DAY * 3) / 2);
 //		final long high = date.getTime() + ((MILLISECONDS_PER_DAY * 3) / 2);
 //		final long low = date.getTime() - MILLISECONDS_PER_DAY;
@@ -34,9 +34,9 @@ public class EpochServiceImpl extends RemoteServiceServlet implements EpochServi
 		final long low = date.getTime() - ((MILLISECONDS_PER_DAY * 10) / 8);
 		final long high = date.getTime() + ((MILLISECONDS_PER_DAY * 10) / 8);
 		
-        Epoch first = new Epoch();
-        Epoch second = new Epoch();
-        Epoch result = new Epoch();
+		final Epoch first = new Epoch();
+		final Epoch second = new Epoch();
+		final Epoch result = new Epoch();
 
         final Query q = new Query("Epoch");
         q.addFilter("sidDate", Query.FilterOperator.GREATER_THAN_OR_EQUAL, new Date(low));
@@ -44,27 +44,27 @@ public class EpochServiceImpl extends RemoteServiceServlet implements EpochServi
         q.addSort("sidDate", SortDirection.ASCENDING);
         final PreparedQuery pq = datastore.prepare(q);
 
-        List<Entity> entities = pq.asList(FetchOptions.Builder.withLimit(2));
-        Entity firstEntity = entities.get(0);
-        Entity secondEntity = entities.get(1);
+        final List<Entity> entities = pq.asList(FetchOptions.Builder.withLimit(2));
+        final Entity firstEntity = entities.get(0);
+        final Entity secondEntity = entities.get(1);
             
         first.setSidDate((Date) firstEntity.getProperty("sidDate"));
         second.setSidDate((Date) secondEntity.getProperty("sidDate"));
         first.setDay((String) firstEntity.getProperty("day"));
         second.setDay((String) secondEntity.getProperty("day"));
-        for (Planet planet : Planet.values()) {
+        for (final Planet planet : Planet.values()) {
            	first.setPosition(planet, (String) firstEntity.getProperty(planet.name().toLowerCase()));           		
            	second.setPosition(planet, (String) secondEntity.getProperty(planet.name().toLowerCase()));           		
         }
 
 
-        long firstTs = first.getSidDate().getTime();
-        long originalTs = date.getTime();
-        long secondTs = second.getSidDate().getTime();
+        final long firstTs = first.getSidDate().getTime();
+        final long originalTs = date.getTime();
+        final long secondTs = second.getSidDate().getTime();
            	
-        long totalDifference = secondTs - firstTs; //--> 100%
-        long firstDifference = originalTs - firstTs;
-        long secondDifference = secondTs - originalTs;
+        final long totalDifference = secondTs - firstTs; //--> 100%
+        final long firstDifference = originalTs - firstTs;
+        final long secondDifference = secondTs - originalTs;
            	
         result.setSidDate(date);
         if (firstDifference < secondDifference) {
@@ -74,7 +74,7 @@ public class EpochServiceImpl extends RemoteServiceServlet implements EpochServi
         	result.setDay(second.getDay());
         }
 
-        for (Planet planet : Planet.values()) {
+        for (final Planet planet : Planet.values()) {
         	if (!planet.equals(Planet.SouthNode)) {
         		final String firstToken = (String) firstEntity.getProperty(planet.name().toLowerCase());
         		final String secondToken = (String) secondEntity.getProperty(planet.name().toLowerCase());

@@ -8,7 +8,7 @@ import java.util.Map;
  * Values from: http://www.vedicastro.com/astronomy6.asp
  */
 public class EquinocticalShaddowLengths {
-	private Map<Integer, Double> shaddowLengths = new HashMap<Integer, Double>(60);
+	private final Map<Integer, Double> shaddowLengths = new HashMap<Integer, Double>(60);
 	
 	public EquinocticalShaddowLengths() {
 		shaddowLengths.put(Integer.valueOf(1), Double.valueOf(0.21D));
@@ -73,17 +73,17 @@ public class EquinocticalShaddowLengths {
 		shaddowLengths.put(Integer.valueOf(60), Double.valueOf(20.78D));
 	}
 
-	public double getShaddowLength(final int latitude) {
+	public final double getShaddowLength(final int latitude) {
 		return shaddowLengths.get(Integer.valueOf(latitude)).doubleValue();
 	}
 
-	public int calculateCharakhandas (final ZodiacSign sign, final int latitude) {
+	public final int calculateCharakhandas (final ZodiacSign sign, final int latitude) {
 		return calculatePalas(sign, latitude) * 6; //in asus
 	}
 
-	private int calculatePalas(final ZodiacSign sign, final int latitude) {
+	private final int calculatePalas(final ZodiacSign sign, final int latitude) {
 		int result = 0;
-		double shaddowLenght = getShaddowLength(latitude);
+		final double shaddowLenght = getShaddowLength(latitude);
 		if (RashimanaGroup.I.equals(sign.getRashimanaGroup())) {
 			result = (int) (shaddowLenght * 10D);
 		} else if (RashimanaGroup.II.equals(sign.getRashimanaGroup())) {

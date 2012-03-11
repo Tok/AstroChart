@@ -8,13 +8,13 @@ public enum RashimanaGroup {
 	II(1795),
 	III(1931);
 	
-	final int equatorialAsus;
+	private final int equatorialAsus;
 	
 	private RashimanaGroup(final int equatorialAsus) {
         this.equatorialAsus = equatorialAsus;
     }
 
-	public int getEquatorialAsus() {
+	public final int getEquatorialAsus() {
     	return equatorialAsus;
     }
 

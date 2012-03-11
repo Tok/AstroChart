@@ -9,18 +9,18 @@ public enum Weekday {
 	Saturday( "Sa"),
 	Sunday(   "Su");
 	
-	final String abbreviation;
+	private final String abbreviation;
 	
 	private Weekday(final String abbreviation) {
         this.abbreviation = abbreviation;
     }
     
-    public String getAbbreviation() {
+    public final String getAbbreviation() {
         return abbreviation;
     }
     
     @Override
-    public String toString() {
+    public final String toString() {
         return this.name();
     }
 }

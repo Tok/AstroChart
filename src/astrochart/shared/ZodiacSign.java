@@ -14,13 +14,13 @@ public enum ZodiacSign {
 	Aquarius(    300, ChartColor.Yellow, '\u2652', "AQ", "LE", RashimanaGroup.II,  false),
 	Pisces(      330, ChartColor.Blue,   '\u2653', "PI", "VI", RashimanaGroup.I,   false);
 
-	final int eclipticLongitude;
-	final ChartColor color;
-	final char unicode;
-	final String abbreviation;
-	final String descendent;
-	final RashimanaGroup rashimanaGroup;
-	final boolean hasLongAscension;
+	private final int eclipticLongitude;
+	private final ChartColor color;
+	private final char unicode;
+	private final String abbreviation;
+	private final String descendent;
+	private final RashimanaGroup rashimanaGroup;
+	private final boolean hasLongAscension;
 	
 	private ZodiacSign(final int eclipticLongitude, final ChartColor color, final char unicode, 
 			final String abbreviation, final String descendent,
@@ -34,7 +34,7 @@ public enum ZodiacSign {
         this.hasLongAscension = hasLongAscension;
     }
 	
-	public static ZodiacSign getSignAtDegree(final double degree) {
+	public final static ZodiacSign getSignAtDegree(final double degree) {
 		for (ZodiacSign sign : ZodiacSign.values()) {
 			if (degree >= sign.getEclipticLongitude() &&
 				degree < sign.getEclipticLongitude() + 30) {
@@ -44,36 +44,36 @@ public enum ZodiacSign {
 		throw new IllegalArgumentException("Value out of range: " + degree);
 	}
 	
-	public int getEclipticLongitude() {
+	public final int getEclipticLongitude() {
     	return eclipticLongitude;
     }
 	
-    public ChartColor getColor() {
+    public final ChartColor getColor() {
         return color;
     }
     
-    public char getUnicode() {
+    public final char getUnicode() {
         return unicode;
     }
     
-    public String getAbbreviation() {
+    public final String getAbbreviation() {
         return abbreviation;
     }
     
-    public String getDescendent() {
+    public final String getDescendent() {
         return descendent;
     }
     
-    public RashimanaGroup getRashimanaGroup() {
+    public final RashimanaGroup getRashimanaGroup() {
         return rashimanaGroup;
     }
     
-    public boolean hasLongAscension() {
+    public final boolean hasLongAscension() {
         return hasLongAscension;
     }
     
     public static final ZodiacSign valueOfAbbrevistion(final String abbreviation) {
-    	for (ZodiacSign sign : ZodiacSign.values()) {
+    	for (final ZodiacSign sign : ZodiacSign.values()) {
     		if (sign.getAbbreviation().equals(abbreviation)) {
     			return sign;
     		}
@@ -82,7 +82,7 @@ public enum ZodiacSign {
     }
     
     @Override
-    public String toString() {
+    public final String toString() {
         return this.name();
     }
 }

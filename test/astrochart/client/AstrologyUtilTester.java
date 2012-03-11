@@ -126,7 +126,7 @@ public class AstrologyUtilTester extends GWTTestCase {
 		assertEquals(348.3387346275075D, astrologyUtil.getSolarEclipticalLongitude());
 		assertEquals(2455995.2224062183D, astrologyUtil.getSolarNoonTransit());
 		
-		Date transit =	dateTimeUtil.convertJdToDate(astrologyUtil.getSolarNoonTransit());
+		final Date transit =	dateTimeUtil.convertJdToDate(astrologyUtil.getSolarNoonTransit());
 		assertEquals("2012.03.08 17:20:15", dateTimeUtil.formatDateAsUtc(transit));
 		
 		final double solarDeclination = astrologyUtil.calculateSolarDeclination(astrologyUtil.getSolarEclipticalLongitude());
@@ -364,7 +364,7 @@ public class AstrologyUtilTester extends GWTTestCase {
     }
 
 	@Override
-    public String getModuleName() {
+    public final String getModuleName() {
 	    return "astrochart.AstroChart";
     }
 }

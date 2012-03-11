@@ -50,28 +50,28 @@ public class Epoch implements Serializable {
     public Epoch() {
     }
 
-	public Long getKey() {
+	public final Long getKey() {
 		return key;
 	}
 	
-	public Date getSidDate() {
+	public final Date getSidDate() {
     	return sidDate;
     }
 
-	public void setSidDate(final Date sidDate) {
+	public final void setSidDate(final Date sidDate) {
     	this.sidDate = sidDate;
     	this.key = sidDate.getTime();
     }
 
-	public String getDay() {
+	public final String getDay() {
 	    return day;
     }
 
-	public void setDay(String day) {
+	public final void setDay(String day) {
 	    this.day = day;
     }
 	
-	public void setPosition(Planet planet, String position) {
+	public final void setPosition(Planet planet, String position) {
 		if (planet.equals(Planet.Sun)) {
 			sun = position;
 		} else if (planet.equals(Planet.Moon)) {
@@ -102,7 +102,7 @@ public class Epoch implements Serializable {
 		}
 	}
 
-	public String getPosition(final Planet planet) {
+	public final String getPosition(final Planet planet) {
 		if (planet.equals(Planet.Sun)) {
 			return sun;
 		} else if (planet.equals(Planet.Moon)) {
@@ -134,19 +134,19 @@ public class Epoch implements Serializable {
 	
 
 	
-	public int getDegrees(final Planet planet) {
+	public final int getDegrees(final Planet planet) {
 		return Integer.parseInt(getPosition(planet).substring(0, 2));
 	}
 	
-	public String getSign(final Planet planet) {
+	public final String getSign(final Planet planet) {
 		return getPosition(planet).substring(2, 4);
 	}
 
-	public int getMinutes(final Planet planet) {
+	public final int getMinutes(final Planet planet) {
 		return Integer.parseInt(getPosition(planet).substring(4, 6));
 	}
 
-	public double getPreciseDegrees(final Planet planet) {
+	public final double getPreciseDegrees(final Planet planet) {
 		return getDegrees(planet) + (((getMinutes(planet) * 100D) / 60D) / 100D);
 	}
 	
@@ -162,7 +162,7 @@ public class Epoch implements Serializable {
 		return southNode;
 	}
 	
-	public String getPositionString(final Planet planet) {
+	public final String getPositionString(final Planet planet) {
 		final StringBuilder builder = new StringBuilder();
 		final ZodiacSign sign = ZodiacSign.valueOfAbbrevistion(getSign(planet));
 		builder.append(sign.getUnicode());
@@ -174,9 +174,9 @@ public class Epoch implements Serializable {
 		return builder.toString();	
 	}
 	
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		for (Planet planet : Planet.values()) {
+	public final String toString() {
+		final StringBuilder builder = new StringBuilder();
+		for (final Planet planet : Planet.values()) {
 			builder.append(planet.name());
 			builder.append(":");
 			builder.append(getPosition(planet));

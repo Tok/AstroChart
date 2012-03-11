@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
 public class NowView extends Composite implements NowPresenter.Display {
-    private final FlexTable contentTable;
+    private final FlexTable contentTable = new FlexTable();
     private final Button updatePositionsButton = new Button("Update Positions");
     private final Button regenerateChartButton = new Button("Regenerate Chart");
     private final Label nowLabel = new Label();
@@ -50,10 +50,9 @@ public class NowView extends Composite implements NowPresenter.Display {
         final DecoratorPanel contentTableDecorator = new DecoratorPanel();
         contentTableDecorator.setWidth("1010px");
         initWidget(contentTableDecorator);
-
-        contentTable = new FlexTable();
+        
         row = 0;
-
+        
         final HorizontalPanel buttonPanel = new HorizontalPanel();
         buttonPanel.add(updatePositionsButton);
         buttonPanel.add(regenerateChartButton);

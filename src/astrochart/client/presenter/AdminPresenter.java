@@ -76,16 +76,14 @@ public class AdminPresenter implements Presenter {
             public void execute() {
             	parseLine(lineIndex);
             }
-		});
-		
-		
+		});		
     }
 	
 	private final synchronized void parseLine(final int index) {
 		if (!hasError) {
 			display.getStatusLabel().setText("Processing line: " + index);		
 			display.getSecondStatusLabel().setText(epochYear + " " + epochMonth);		
-			for (Month month : Month.values()) {
+			for (final Month month : Month.values()) {
 				if (lines[index].startsWith(month.name().toUpperCase())) {
 					epochMonth = month;
 					epochYear = Integer.parseInt(lines[index].split(" ")[1]);
@@ -115,7 +113,7 @@ public class AdminPresenter implements Presenter {
 	}
 	
 	private final void parseEpochLine(final int epochYear, final Month epochMonth, final String line) {
-		for (Weekday weekday : Weekday.values()) {
+		for (final Weekday weekday : Weekday.values()) {
 			if (line.startsWith(weekday.getAbbreviation())) {
 				final String[] split = line.split(" ");
 				//DATE  SID.TIME  SUN   MOON  MERCURY  VENUS  MARS JUPITER SATURN URANUS NEPTUNE PLUTO  NODE
@@ -134,7 +132,7 @@ public class AdminPresenter implements Presenter {
 				));
 				epoch.setDay(weekday.getAbbreviation());
 			
-				for (Planet planet : Planet.values()) {
+				for (final Planet planet : Planet.values()) {
 					epoch.setPosition(planet, split[planet.getToken()]);
 				}
 

@@ -3,23 +3,23 @@ package astrochart.shared.wrappers;
 import com.google.gwt.i18n.client.NumberFormat;
 
 public class BodyPosition {
-	private double azimuth;
-	private double height;
+	private final double azimuth;
+	private final double height;
 	
 	public BodyPosition(final double azimuth, final double height) {
 		this.azimuth = azimuth;
 		this.height = height;
 	}
 
-	public double getAzimuth() {
+	public final double getAzimuth() {
 	    return azimuth;
     }
 
-	public double getHeight() {
+	public final double getHeight() {
 	    return height;
     }
 	
-	public String toString() {
+	public final String toString() {
 		final StringBuilder builder = new StringBuilder();
 		builder.append("Azimuth: ");
 		builder.append(NumberFormat.getFormat("#.000").format(azimuth));

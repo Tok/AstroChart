@@ -1,0 +1,19 @@
+Welcome to Astrology Chart Generator.
+http://astro-chart.appspot.com
+
+This application is work in progress and may therefore still display incorrect results.
+ 
+The ephemeris used in this application can be found at:
+http://www.findyourfate.com/astrology/ephemeris/ephemeris.html
+ 
+Astrology Chart Generator uses the following IP-location lookup service:
+http://freegeoip.net
+ 
+The location lookup by city-name is powered by:
+http://code.google.com/apis/maps/index.html
+ 
+Sunrise and sunset calculations are done according to the formulas provided at:
+http://users.electromagnetic.net/bu/astro/sunrise-set.php
+This application will therefore calculate the same results for sunrise and sunset as calculated here:
+http://users.electromagnetic.net/bu/astro/iyf-calc.php
+(Beware: There are many other online calculators that result in different results.)

@@ -42,7 +42,7 @@ public class InfoPresenter extends AbstractTabPresenter implements Presenter {
         addRowText("Welcome to Astrology Chart Generator.");
         addRowText("This application is work in progress and may therefore still display incorrect results.");
         addRowWidget(new HTML("&nbsp;"));
-        addRowText("The ephremeris used in this application can be found at:");
+        addRowText("The ephemeris used in this application can be found at:");
         addRowWidget(new Anchor("http://www.findyourfate.com/astrology/ephemeris/ephemeris.html", "http://www.findyourfate.com/astrology/ephemeris/ephemeris.html"));
         addRowWidget(new HTML("&nbsp;"));
         addRowText("Astrology Chart Generator uses the following IP-location lookup service:");

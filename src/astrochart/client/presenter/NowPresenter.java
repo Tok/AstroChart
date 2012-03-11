@@ -22,11 +22,15 @@ import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.geolocation.client.Geolocation;
 import com.google.gwt.geolocation.client.Position;
@@ -35,6 +39,7 @@ import com.google.gwt.geolocation.client.PositionError;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabPanel;
@@ -65,6 +70,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		Label getUtcJdLabel();
 		Label getLocalSidLabel();
 		Label getUtcSidLabel();
+		CheckBox getPlanetCheckBox(Planet planet);
 		Label getPlanetLabel(Planet planet);
 		TextBox getLocationTextBox();
 		Button getSubmitCityButton();
@@ -86,6 +92,15 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     }
 
     public final void bind() {
+    	for (Planet planet : Planet.values()) {
+    		this.display.getPlanetCheckBox(planet).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+				@Override
+				public void onValueChange(ValueChangeEvent<Boolean> event) {
+					regenerateChart();
+				}
+			});
+    	}
+    	
     	this.display.getLocationTextBox().addKeyUpHandler(new KeyUpHandler() {
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
@@ -106,7 +121,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-					processCustomGeocode();
+					processCustomGeocode(true);
 				}
 			}
 		});
@@ -114,7 +129,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     	this.display.getSubmitLatitudeButton().addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				processCustomGeocode();
+				processCustomGeocode(true);
 			}
 		});
     	
@@ -122,7 +137,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-					processCustomGeocode();
+					processCustomGeocode(true);
 				}
 			}
 		});
@@ -130,7 +145,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     	this.display.getSubmitLongitudeButton().addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				processCustomGeocode();
+				processCustomGeocode(true);
 			}
 		});
     }
@@ -189,7 +204,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 				Coordinates coords = result.getCoordinates();
 				display.getLatitudeTextBox().setText(String.valueOf(coords.getLatitude()));
 				display.getLongitudeTextBox().setText(String.valueOf(coords.getLongitude()));
-				processCustomGeocode();
+				processCustomGeocode(true);
 			}
 			@Override
 			public void onFailure(PositionError reason) {
@@ -225,16 +240,19 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		});
     }
     
-	private void processCustomGeocode() {
+	private void processCustomGeocode(final boolean resetCityName) {
 		GeocodeData geocode = new GeocodeData();
-		geocode.setCityName("user input");
-		this.display.getLocationTextBox().setText("user input");
+		if (resetCityName) {
+			geocode.setCityName("user input");
+			this.display.getLocationTextBox().setText("user input");
+		} else {
+			geocode.setCityName(display.getLocationTextBox().getText());
+		}
 		this.display.getStatusLabel().setText("");			
 		try {
 			geocode.setLatitude(Double.valueOf(display.getLatitudeTextBox().getText()));
 			try {
-				geocode.setLongitude(Double.valueOf(display.getLongitudeTextBox().getText()));
-				this.display.getStatusLabel().setText("");				
+				geocode.setLongitude(Double.valueOf(display.getLongitudeTextBox().getText()));				
 				processGeocodeData(geocode);
 			} catch (NumberFormatException nfe) {
 				final String message = "Fail: Longitude is not numeric.";
@@ -265,9 +283,26 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     		display.getSunPositionLabel().setText(position.toString());
 		
     		final AscendentAndOffset ascendent = astroUtil.determineAscendent(utcNow, geocode.getLongitude(), geocode.getLatitude());
-    		display.getAscendentLabel().setText(ascendent.toString());		
-    		generateChart(ascendent);
+    		display.getAscendentLabel().setText(ascendent.toString());
+    		
+    		display.getStatusLabel().setText("Generating chart...");
+    		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+    			@Override
+    			public void execute() {
+    	    		generateChart(ascendent);
+    			}
+    		});
     	}
+    }
+
+    private final void regenerateChart() {
+		display.getStatusLabel().setText("Generating chart...");
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			@Override
+			public void execute() {
+		    	processCustomGeocode(false);				
+			}
+		});
     }
 
     private final void generateEmptyChart() {
@@ -329,15 +364,17 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		//place planet information
 		ctx.setLineWidth(0.75D);
 		for (Planet planet : Planet.values()) {
-			final ZodiacSign sign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(planet));
-			final double degrees = epoch.getPreciseDegrees(planet) + sign.getEclipticLongitudeStart();
-			double angle = degrees + 90D - Double.valueOf(offset).intValue(); 
-			angle = keepInRange(angle);
-			drawExcentricLine(ctx, angle, ChartProportions.PlanetMark, ChartProportions.InnerMark); //draw outer planet mark
-			writeExcentricInfo(ctx, 12, String.valueOf(planet.getUnicode()), angle, ChartProportions.PlanetSign);
-			writeExcentricInfo(ctx, 8, epoch.getDegrees(planet) + String.valueOf('\u00B0'), angle, ChartProportions.Degree);
-			writeExcentricInfo(ctx, 8, epoch.getDegrees(planet) + String.valueOf('\u2032'), angle, ChartProportions.Minute);
-			drawExcentricLine(ctx, angle, ChartProportions.Inner, ChartProportions.InnerLine); //draw inner planet mark
+			if (display.getPlanetCheckBox(planet).getValue()) {
+				final ZodiacSign sign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(planet));
+				final double degrees = epoch.getPreciseDegrees(planet) + sign.getEclipticLongitudeStart();
+				double angle = degrees + 90D - Double.valueOf(offset).intValue(); 
+				angle = keepInRange(angle);
+				drawExcentricLine(ctx, angle, ChartProportions.PlanetMark, ChartProportions.InnerMark); //draw outer planet mark
+				writeExcentricInfo(ctx, 12, String.valueOf(planet.getUnicode()), angle, ChartProportions.PlanetSign);
+				writeExcentricInfo(ctx, 8, epoch.getDegrees(planet) + String.valueOf('\u00B0'), angle, ChartProportions.Degree);
+				writeExcentricInfo(ctx, 8, epoch.getMinutes(planet) + String.valueOf('\u2032'), angle, ChartProportions.Minute);
+				drawExcentricLine(ctx, angle, ChartProportions.Inner, ChartProportions.InnerLine); //draw inner planet mark
+			}
 		}
 		
 		//draw houses
@@ -356,29 +393,34 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		//draw aspects
 		ctx.setLineWidth(0.2D);
 		for (Planet firstPlanet : Planet.values()) {
-			for (Planet secondPlanet : Planet.values()) {
-				final ZodiacSign firstSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(firstPlanet));
-				final double firstDegrees = epoch.getPreciseDegrees(firstPlanet) + firstSign.getEclipticLongitudeStart();
-				double firstAngle = firstDegrees + 90D - Double.valueOf(offset).intValue(); 
-				firstAngle = keepInRange(firstAngle);
+			if (display.getPlanetCheckBox(firstPlanet).getValue()) {
+				for (Planet secondPlanet : Planet.values()) {
+					if (display.getPlanetCheckBox(secondPlanet).getValue()) {
+						final ZodiacSign firstSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(firstPlanet));
+						final double firstDegrees = epoch.getPreciseDegrees(firstPlanet) + firstSign.getEclipticLongitudeStart();
+						double firstAngle = firstDegrees + 90D - Double.valueOf(offset).intValue(); 
+						firstAngle = keepInRange(firstAngle);
 
-				final ZodiacSign secondSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(secondPlanet));
-				final double secondDegrees = epoch.getPreciseDegrees(secondPlanet) + secondSign.getEclipticLongitudeStart();
-				double secondAngle = secondDegrees + 90D - Double.valueOf(offset).intValue(); 
-				secondAngle = keepInRange(secondAngle);
-				
-				final double xFirst = getHcs() - 
-						(Math.sin(Math.toRadians(firstAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
-				final double yFirst = getHcs() - 
-						(Math.cos(Math.toRadians(firstAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
-				final double xSecond = getHcs() - 
-						(Math.sin(Math.toRadians(secondAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
-				final double ySecond = getHcs() - 
-						(Math.cos(Math.toRadians(secondAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
-				drawLine(xFirst, yFirst, xSecond, ySecond);
+						final ZodiacSign secondSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(secondPlanet));
+						final double secondDegrees = epoch.getPreciseDegrees(secondPlanet) + secondSign.getEclipticLongitudeStart();
+						double secondAngle = secondDegrees + 90D - Double.valueOf(offset).intValue(); 
+						secondAngle = keepInRange(secondAngle);
+
+						final double xFirst = getHcs() - 
+								(Math.sin(Math.toRadians(firstAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
+						final double yFirst = getHcs() - 
+								(Math.cos(Math.toRadians(firstAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
+						final double xSecond = getHcs() - 
+								(Math.sin(Math.toRadians(secondAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
+						final double ySecond = getHcs() - 
+								(Math.cos(Math.toRadians(secondAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
+						drawLine(xFirst, yFirst, xSecond, ySecond);
+					}
+				}
 			}
 		}
 		
+		display.getStatusLabel().setText("");
     }
 		
 	private final void drawExcentricLine(final Context2d ctx, final double angle, 

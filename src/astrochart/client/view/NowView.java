@@ -6,11 +6,13 @@ import astrochart.client.presenter.NowPresenter;
 import astrochart.shared.Planet;
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -38,6 +40,7 @@ public class NowView extends Composite implements NowPresenter.Display {
     private final Canvas chart = Canvas.createIfSupported();
     private final Label statusLabel = new Label();
     
+    private final Map<Planet, CheckBox> planetCheckBoxes = new HashMap<Planet, CheckBox>();
     private final Map<Planet, Label> planetLabels = new HashMap<Planet, Label>();
     
     private int row;
@@ -74,9 +77,15 @@ public class NowView extends Composite implements NowPresenter.Display {
         row++;
         
         for (Planet planet : Planet.values()) {
+        	final HorizontalPanel pan = new HorizontalPanel();
+        	final CheckBox planetCheckBox = new CheckBox();
+        	planetCheckBox.setValue(true);
+        	planetCheckBoxes.put(planet, planetCheckBox);
         	final Label planetLabel = new Label();
         	planetLabels.put(planet, planetLabel);
-        	addRow(planet.getUnicode() + " " + planet.name() + ": ", planetLabel);
+        	pan.add(planetCheckBox);
+        	pan.add(new Label(planet.getUnicode() + " " + planet.name() + ": "));
+        	addWidgetRow(pan, planetLabel);
         }
 
         contentTable.setWidget(row, 0, new HTML("&nbsp;"));
@@ -106,6 +115,14 @@ public class NowView extends Composite implements NowPresenter.Display {
     	contentTable.setText(row, 0, label);
     	contentTable.getCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_MIDDLE);
     	contentTable.setWidget(row, 1, widget);
+    	contentTable.getCellFormatter().setVerticalAlignment(row, 1, HasVerticalAlignment.ALIGN_MIDDLE);
+    	row++;
+    }
+    
+    private final void addWidgetRow(final Widget first, final Widget second) {
+    	contentTable.setWidget(row, 0, first);
+    	contentTable.getCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+    	contentTable.setWidget(row, 1, second);
     	contentTable.getCellFormatter().setVerticalAlignment(row, 1, HasVerticalAlignment.ALIGN_MIDDLE);
     	row++;
     }
@@ -159,7 +176,12 @@ public class NowView extends Composite implements NowPresenter.Display {
     public final Canvas getChart() {
         return chart;
     }
-
+    
+    @Override
+    public final CheckBox getPlanetCheckBox(final Planet planet) {
+        return planetCheckBoxes.get(planet);
+    }
+    
     @Override
     public final Label getPlanetLabel(final Planet planet) {
         return planetLabels.get(planet);

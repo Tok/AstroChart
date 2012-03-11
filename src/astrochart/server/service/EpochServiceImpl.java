@@ -75,61 +75,63 @@ public class EpochServiceImpl extends RemoteServiceServlet implements EpochServi
         }
 
         for (Planet planet : Planet.values()) {
-        	final String firstToken = (String) firstEntity.getProperty(planet.name().toLowerCase());
-        	final String secondToken = (String) secondEntity.getProperty(planet.name().toLowerCase());
-        	final int firstDegrees = Integer.parseInt(firstToken.substring(0,2));
-        	final int secondDegrees = Integer.parseInt(secondToken.substring(0,2));
-        	final String firstSign = firstToken.substring(2,4);
-        	final String secondSign = secondToken.substring(2,4);
-        	final int firstMinutes = Integer.parseInt(firstToken.substring(4,6));
-        	final int secondMinutes = Integer.parseInt(secondToken.substring(4,6));
+        	if (!planet.equals(Planet.SouthNode)) {
+        		final String firstToken = (String) firstEntity.getProperty(planet.name().toLowerCase());
+        		final String secondToken = (String) secondEntity.getProperty(planet.name().toLowerCase());
+        		final int firstDegrees = Integer.parseInt(firstToken.substring(0,2));
+        		final int secondDegrees = Integer.parseInt(secondToken.substring(0,2));
+        		final String firstSign = firstToken.substring(2,4);
+        		final String secondSign = secondToken.substring(2,4);
+        		final int firstMinutes = Integer.parseInt(firstToken.substring(4,6));
+        		final int secondMinutes = Integer.parseInt(secondToken.substring(4,6));
            		
-        	int averageDegrees = 0;
-        	String tokenSign = "";
-        	int averageMinutes = 0;
-        	long averageTotalMinutes = 0;
-        	if (firstSign.equals(secondSign)) {
-        		tokenSign = firstSign;
-        		//Note: firstDifference and secondDifference are switched in order to weight 
-        		//the nearer epoch with the smaller difference more than the further
-        		averageTotalMinutes = (
-        				((firstMinutes + (firstDegrees * 60)) * secondDifference) + 
-        				((secondMinutes + (secondDegrees * 60)) * firstDifference)
-        			) / totalDifference;
-        	} else {
-        		if (firstDifference < secondDifference) {
-        			//high degrees
+        		int averageDegrees = 0;
+        		String tokenSign = "";
+        		int averageMinutes = 0;
+        		long averageTotalMinutes = 0;
+        		if (firstSign.equals(secondSign)) {
         			tokenSign = firstSign;
-           			averageTotalMinutes = (
-           					((firstMinutes + (firstDegrees * 60)) * secondDifference) + 
-           					((secondMinutes + ((secondDegrees + 30) * 60)) * firstDifference)
-               			) / totalDifference;
-           		} else {
-           			//low degrees
-           			tokenSign = secondSign;
-               		averageTotalMinutes = (
-               				((firstMinutes + ((firstDegrees + 30) * 60)) * secondDifference) + 
-               				((secondMinutes + (secondDegrees * 60)) * firstDifference)
-               			) / totalDifference;
-           		}
-           	}
+        			//Note: firstDifference and secondDifference are switched in order to weight 
+        			//the nearer epoch with the smaller difference more than the further
+        			averageTotalMinutes = (
+        					((firstMinutes + (firstDegrees * 60)) * secondDifference) + 
+        					((secondMinutes + (secondDegrees * 60)) * firstDifference)
+        					) / totalDifference;
+        		} else {
+        			if (firstDifference < secondDifference) {
+        				//high degrees
+        				tokenSign = firstSign;
+        				averageTotalMinutes = (
+        						((firstMinutes + (firstDegrees * 60)) * secondDifference) + 
+           						((secondMinutes + ((secondDegrees + 30) * 60)) * firstDifference)
+        						) / totalDifference;
+        			} else {
+        				//low degrees
+        				tokenSign = secondSign;
+        				averageTotalMinutes = (
+        						((firstMinutes + ((firstDegrees + 30) * 60)) * secondDifference) + 
+        						((secondMinutes + (secondDegrees * 60)) * firstDifference)
+        						) / totalDifference;
+        			}
+        		}
            		
-       		averageDegrees = (int) averageTotalMinutes / 60;
-       		if (averageDegrees >= 30) {
-       			averageDegrees = averageDegrees - 30;
-       		}
-       		averageMinutes = (int) averageTotalMinutes % 60;
+        		averageDegrees = (int) averageTotalMinutes / 60;
+        		if (averageDegrees >= 30) {
+        			averageDegrees = averageDegrees - 30;
+        		}
+        		averageMinutes = (int) averageTotalMinutes % 60;
 
-           	String tokenDegrees = String.valueOf(averageDegrees);
-       		if (tokenDegrees.length() < 2) {
-       			tokenDegrees = "0" + tokenDegrees;
-       		}
-       		String tokenMinutes = String.valueOf(averageMinutes);
-       		if (tokenMinutes.length() < 2) {
-       			tokenMinutes = "0" + tokenMinutes;
-       		}
+        		String tokenDegrees = String.valueOf(averageDegrees);
+        		if (tokenDegrees.length() < 2) {
+        			tokenDegrees = "0" + tokenDegrees;
+        		}
+        		String tokenMinutes = String.valueOf(averageMinutes);
+        		if (tokenMinutes.length() < 2) {
+        			tokenMinutes = "0" + tokenMinutes;
+        		}
 
-           	result.setPosition(planet, tokenDegrees + tokenSign + tokenMinutes);
+        		result.setPosition(planet, tokenDegrees + tokenSign + tokenMinutes);
+        	}
         }
         
         /*

@@ -79,7 +79,9 @@ public class NowView extends Composite implements NowPresenter.Display {
         for (Planet planet : Planet.values()) {
         	final HorizontalPanel pan = new HorizontalPanel();
         	final CheckBox planetCheckBox = new CheckBox();
-        	planetCheckBox.setValue(true);
+        	if (planet.isBody()) {
+        		planetCheckBox.setValue(true);
+        	}
         	planetCheckBoxes.put(planet, planetCheckBox);
         	final Label planetLabel = new Label();
         	planetLabels.put(planet, planetLabel);

@@ -94,8 +94,11 @@ public class Epoch implements Serializable {
 			pluto = position;
 		} else if (planet.equals(Planet.Node)) {
 			node = position;
+		} else if (planet.equals(Planet.SouthNode)) {
+			//ignore
+//			throw new IllegalArgumentException("Cannot set south node position.");
 		} else {
-			assert false;
+			throw new IllegalArgumentException("Planet unknown.");
 		}
 	}
 
@@ -122,11 +125,14 @@ public class Epoch implements Serializable {
 			return pluto;
 		} else if (planet.equals(Planet.Node)) {
 			return node;
+		} else if (planet.equals(Planet.SouthNode)) {
+			return determineSouthNodePosition();
 		} else {
-			assert false;
-			return "";
+			throw new IllegalArgumentException("Planet unknown");
 		}
 	}
+	
+
 	
 	public int getDegrees(final Planet planet) {
 		return Integer.parseInt(getPosition(planet).substring(0, 2));
@@ -142,6 +148,18 @@ public class Epoch implements Serializable {
 
 	public double getPreciseDegrees(final Planet planet) {
 		return getDegrees(planet) + (((getMinutes(planet) * 100D) / 60D) / 100D);
+	}
+	
+	/**
+	 * Determines and returns the position of the south node 
+	 * by evaluating the north node position.
+	 */
+	private final String determineSouthNodePosition() {
+		final String northNode = getPosition(Planet.Node);
+		final String northSign = northNode.substring(2,4);
+		final String sign = ZodiacSign.valueOfAbbrevistion(northSign).getDescendent();
+		final String southNode = northNode.substring(0,2) + sign + northNode.substring(4,6);
+		return southNode;
 	}
 	
 	public String getPositionString(final Planet planet) {

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+              http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5"
+         xmlns="http://java.sun.com/xml/ns/javaee">
+
+  	<!-- Servlets -->
+  	<servlet>
+		<servlet-name>adminService</servlet-name>
+		<servlet-class>astrochart.server.service.AdminServiceImpl</servlet-class>
+	</servlet>
+  	<servlet>
+		<servlet-name>epochService</servlet-name>
+		<servlet-class>astrochart.server.service.EpochServiceImpl</servlet-class>
+	</servlet>
+  	<servlet>
+		<servlet-name>geocodeService</servlet-name>
+		<servlet-class>astrochart.server.service.GeocodeServiceImpl</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>adminService</servlet-name>
+		<url-pattern>/astrochart/admin</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>epochService</servlet-name>
+		<url-pattern>/astrochart/epoch</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>geocodeService</servlet-name>
+		<url-pattern>/astrochart/geocode</url-pattern>
+	</servlet-mapping>
+	
+  	<!-- Default page to serve -->
+ 	<welcome-file-list>
+    	<welcome-file>AstroChart.html</welcome-file>
+  	</welcome-file-list>
+
+</web-app>

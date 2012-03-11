@@ -170,8 +170,11 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
         container.add(super.getTabPanel());
         
         updateEpoch();
+        
+		//XXX Experimental HTML5 Geolocation
+		//tryToGetGeolocationFromBrowser();
 		
-
+        updateGeodataByIp();
 		
 		this.display.getLocationTextBox().setFocus(true);
     }
@@ -201,10 +204,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 					display.getPlanetLabel(planet).setText(result.getPositionString(planet));
 				}
 				display.getStatusLabel().setText("Positions updated."); 
-
-				//XXX Experimental HTML5 Geolocation
-				//tryToGetGeolocationFromBrowser();
-				updateGeodataByIp();
+				processCustomGeocode(true);
 			}
 			@Override
 			public void onFailure(Throwable caught) {

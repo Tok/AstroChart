@@ -7,6 +7,7 @@ import astrochart.client.service.GeocodeService;
 import astrochart.client.service.GeocodeServiceAsync;
 import astrochart.client.util.AstrologyUtil;
 import astrochart.client.util.DateTimeUtil;
+import astrochart.shared.ChartColor;
 import astrochart.shared.ChartProportions;
 import astrochart.shared.Planet;
 import astrochart.shared.ZodiacSign;
@@ -339,8 +340,8 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     
 	private final void generateChart(final AscendentAndOffset ascendent) {
 		Context2d ctx = display.getChart().getContext2d();
-		ctx.setStrokeStyle(CssColor.make("#000000"));
-		ctx.setFillStyle(CssColor.make("#FFFFFF"));
+		ctx.setStrokeStyle(CssColor.make(ChartColor.Black.getHex()));
+		ctx.setFillStyle(CssColor.make(ChartColor.White.getHex()));
 		ctx.setFont("10pt Arial");
 		ctx.fillRect(0, 0, display.getChart().getOffsetWidth(), display.getChart().getOffsetHeight()); //clear ctx
 
@@ -373,7 +374,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 
 			//draw colored section
 			ctx.beginPath();
-			ctx.setFillStyle(CssColor.make(sign.getColor()));
+			ctx.setFillStyle(CssColor.make(sign.getColor().getHex()));
 			final double start = Math.toRadians((sign.getEclipticLongitude() * -1) + 150D +offset);
 			final double end = Math.toRadians((sign.getEclipticLongitude() * -1) + 180D +offset);
 			ctx.arc(getXCenter(), getYCenter(), ChartProportions.getRadius(getHcs(), ChartProportions.OuterEclyptic), start, end, false);
@@ -388,8 +389,8 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			final double ySign = getHcs() - 
 					(Math.cos(Math.toRadians(angle + 15D)) * ChartProportions.getRadius(getHcs(), ChartProportions.EclypticCenter)) +18;
 			ctx.beginPath();
-			ctx.setFillStyle(CssColor.make("FFFFFF"));
-			ctx.setStrokeStyle(CssColor.make("000000"));
+			ctx.setFillStyle(CssColor.make(ChartColor.White.getHex()));
+			ctx.setStrokeStyle(CssColor.make(ChartColor.Black.getHex()));
 			ctx.fillText(String.valueOf(sign.getUnicode()), xSign, ySign);
 			ctx.strokeText(String.valueOf(sign.getUnicode()), xSign, ySign);
 			ctx.closePath();
@@ -483,8 +484,8 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 	private final void markFiveDegrees(final Context2d ctx, final double offset) {
 	    for (int angle = 0; angle < 360; angle = angle +5) {
 			ctx.beginPath();
-			ctx.setFillStyle(CssColor.make("FFFFFF"));
-			ctx.setStrokeStyle(CssColor.make("000000"));
+			ctx.setFillStyle(CssColor.make(ChartColor.White.getHex()));
+			ctx.setStrokeStyle(CssColor.make(ChartColor.Black.getHex()));
 			final double start = Math.toRadians(angle + offset);
 			final double end = Math.toRadians(angle + offset + 5D);
 			ctx.arc(getXCenter(), getYCenter(), ChartProportions.getRadius(getHcs(), ChartProportions.InnerEclyptic), start, end, false);
@@ -498,8 +499,8 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 	private final void markDegrees(final Context2d ctx, final double offset) {
 	    for (int angle = 0; angle < 360; angle++) {
 			ctx.beginPath();
-			ctx.setFillStyle(CssColor.make("FFFFFF"));
-			ctx.setStrokeStyle(CssColor.make("000000"));
+			ctx.setFillStyle(CssColor.make(ChartColor.White.getHex()));
+			ctx.setStrokeStyle(CssColor.make(ChartColor.Black.getHex()));
 			final double start = Math.toRadians(angle + offset);
 			final double end = Math.toRadians(angle + offset+ 1D);
 			ctx.arc(getXCenter(), getYCenter(), ChartProportions.getRadius(getHcs(), ChartProportions.OuterMark), start, end, false);

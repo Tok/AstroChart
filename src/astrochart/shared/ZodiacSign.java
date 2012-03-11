@@ -1,28 +1,28 @@
 package astrochart.shared;
 
 public enum ZodiacSign {
-	Aries(         0, "ED1C24", '\u2648', "AR", "LI", RashimanaGroup.I,   false),
-	Taurus(       30, "22B14C", '\u2649', "TA", "SC", RashimanaGroup.II,  false),
-	Gemini(       60, "FFF200", '\u264A', "GE", "SG", RashimanaGroup.III, false),
-	Cancer(       90, "3F48CC", '\u264B', "CN", "CP", RashimanaGroup.III, true),
-	Leo(         120, "ED1C24", '\u264C', "LE", "AQ", RashimanaGroup.II,  true),
-	Virgo(       150, "22B14C", '\u264D', "VI", "PI", RashimanaGroup.I,   true),
-	Libra(       180, "FFF200", '\u264E', "LI", "AR", RashimanaGroup.I,   true),
-	Scorpio(     210, "3F48CC", '\u264F', "SC", "TA", RashimanaGroup.II,  true),
-	Sagittaurius(240, "ED1C24", '\u2650', "SG", "GE", RashimanaGroup.III, true),
-	Capricorn(   270, "22B14C", '\u2651', "CP", "CN", RashimanaGroup.III, false),
-	Aquarius(    300, "FFF200", '\u2652', "AQ", "LE", RashimanaGroup.II,  false),
-	Pisces(      330, "3F48CC", '\u2653', "PI", "VI", RashimanaGroup.I,   false);
+	Aries(         0, ChartColor.Red,    '\u2648', "AR", "LI", RashimanaGroup.I,   false),
+	Taurus(       30, ChartColor.Green,  '\u2649', "TA", "SC", RashimanaGroup.II,  false),
+	Gemini(       60, ChartColor.Yellow, '\u264A', "GE", "SG", RashimanaGroup.III, false),
+	Cancer(       90, ChartColor.Blue,   '\u264B', "CN", "CP", RashimanaGroup.III, true),
+	Leo(         120, ChartColor.Red,    '\u264C', "LE", "AQ", RashimanaGroup.II,  true),
+	Virgo(       150, ChartColor.Green,  '\u264D', "VI", "PI", RashimanaGroup.I,   true),
+	Libra(       180, ChartColor.Yellow, '\u264E', "LI", "AR", RashimanaGroup.I,   true),
+	Scorpio(     210, ChartColor.Blue,   '\u264F', "SC", "TA", RashimanaGroup.II,  true),
+	Sagittaurius(240, ChartColor.Red,    '\u2650', "SG", "GE", RashimanaGroup.III, true),
+	Capricorn(   270, ChartColor.Green,  '\u2651', "CP", "CN", RashimanaGroup.III, false),
+	Aquarius(    300, ChartColor.Yellow, '\u2652', "AQ", "LE", RashimanaGroup.II,  false),
+	Pisces(      330, ChartColor.Blue,   '\u2653', "PI", "VI", RashimanaGroup.I,   false);
 
 	final int eclipticLongitude;
-	final String color;
+	final ChartColor color;
 	final char unicode;
 	final String abbreviation;
 	final String descendent;
 	final RashimanaGroup rashimanaGroup;
 	final boolean hasLongAscension;
 	
-	private ZodiacSign(final int eclipticLongitude, final String color, final char unicode, 
+	private ZodiacSign(final int eclipticLongitude, final ChartColor color, final char unicode, 
 			final String abbreviation, final String descendent,
 			final RashimanaGroup rashimanaGroup, final boolean hasLongAscension) {
         this.eclipticLongitude = eclipticLongitude;
@@ -48,7 +48,7 @@ public enum ZodiacSign {
     	return eclipticLongitude;
     }
 	
-    public String getColor() {
+    public ChartColor getColor() {
         return color;
     }
     

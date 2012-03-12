@@ -278,7 +278,9 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			public void onSuccess(Epoch result) {
 				epoch = result;
 				for (Planet planet : Planet.values()) {
-					display.getPlanetLabel(planet).setText(result.getPositionString(planet));
+					final Label label = display.getPlanetLabel(planet);
+					label.setText(result.getPositionDegreeString(planet));
+					label.setTitle(result.getPositionString(planet));
 				}
 				display.getStatusLabel().setText("Positions updated."); 
 				processCustomGeocode(false);
@@ -385,7 +387,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		
     		final AscendentAndOffset ascendent = astroUtil.determineAscendent(utcNow, geocode.getLongitude(), geocode.getLatitude());
     		display.getAscendentLabel().setText(ascendent.toString());
-    		
+
     		display.getStatusLabel().setText("Generating chart...");
     		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
     			@Override

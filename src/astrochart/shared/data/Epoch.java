@@ -174,6 +174,21 @@ public class Epoch implements Serializable {
 		return builder.toString();	
 	}
 	
+	public final String getPositionDegreeString(final Planet planet) {
+		final StringBuilder builder = new StringBuilder();
+		final ZodiacSign sign = ZodiacSign.valueOfAbbrevistion(getSign(planet));
+		builder.append(sign.getUnicode());
+		builder.append(" ");
+		builder.append(sign);
+		builder.append(" ");
+		builder.append(getDegrees(planet));
+		builder.append(String.valueOf('\u00B0'));
+		builder.append(" ");
+		builder.append(getMinutes(planet));
+		builder.append(String.valueOf('\u2032'));
+		return builder.toString();	
+	}
+	
 	public final String toString() {
 		final StringBuilder builder = new StringBuilder();
 		for (final Planet planet : Planet.values()) {

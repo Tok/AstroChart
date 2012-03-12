@@ -29,6 +29,8 @@ import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -47,6 +49,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -79,6 +82,8 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		CheckBox getPlanetCheckBox(Planet planet);
 		Label getPlanetLabel(Planet planet);
 		CheckBox getAspectCheckBox(AspectType type);
+		double getAspectOrb(AspectType type);
+		ListBox getAspectListBox(AspectType type);
 		Label getAspectLabel(AspectType type);
 		void resetAspects();
 		void addAspect(AspectType aspectType);
@@ -125,6 +130,12 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     		this.display.getAspectCheckBox(type).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 				@Override
 				public void onValueChange(ValueChangeEvent<Boolean> event) {
+					regenerateChart();
+				}
+			});
+    		this.display.getAspectListBox(type).addChangeHandler(new ChangeHandler() {
+				@Override
+				public void onChange(ChangeEvent event) {
 					regenerateChart();
 				}
 			});
@@ -493,8 +504,8 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		}
 		AspectType isType = null;
 		for (final AspectType type : AspectType.values()) {
-			if (difference <= type.getAngle() + type.getOrb() && 
-				difference >= type.getAngle() - type.getOrb()) {
+			if (difference <= type.getAngle() + display.getAspectOrb(type) && 
+				difference >= type.getAngle() - display.getAspectOrb(type)) {
 				isType = type;
 				break;
 			}

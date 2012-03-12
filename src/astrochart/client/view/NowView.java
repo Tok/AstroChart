@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -46,6 +47,7 @@ public class NowView extends Composite implements NowPresenter.Display {
     private final Map<Planet, Label> planetLabels = new HashMap<Planet, Label>();
     private final Map<AspectType, CheckBox> aspectCheckBoxes = new HashMap<AspectType, CheckBox>();
     private final Map<AspectType, Label> aspectLabels = new HashMap<AspectType, Label>();
+    private final Map<AspectType, ListBox> aspectListboxes = new HashMap<AspectType, ListBox>();
     
     private int row;
     
@@ -132,6 +134,43 @@ public class NowView extends Composite implements NowPresenter.Display {
         contentTable.setWidget(row, 0, new HTML("&nbsp;"));
         row++;
         
+        final FlexTable aspectFlex = new FlexTable();
+        aspectFlex.setText(0, 0, "Aspect");
+        aspectFlex.setText(0, 1, "Counter");
+        aspectFlex.setText(0, 2, "Orb");
+        int aspectRow = 1;
+        for (final AspectType aspectType : AspectType.values()) {
+        	final HorizontalPanel pan = new HorizontalPanel();
+        	final CheckBox aspectCheckBox = new CheckBox();
+        	aspectCheckBox.setValue(true);
+        	aspectCheckBoxes.put(aspectType, aspectCheckBox);
+        	pan.add(aspectCheckBox);
+        	pan.add(new Label(aspectType.getUnicode() + " " + aspectType.name() + "s: "));
+        	aspectFlex.setWidget(aspectRow, 0, pan);
+        	final Label aspectLabel = new Label();
+        	aspectLabel.setText("0");
+        	aspectLabels.put(aspectType, aspectLabel);
+        	aspectFlex.setWidget(aspectRow, 1, aspectLabel);
+        	final ListBox listBox = new ListBox();
+        	listBox.setWidth("70px");
+            int index = 0;
+        	for (final double orb : aspectType.getOrbs()) {
+        		listBox.addItem(String.valueOf(orb));
+           		if (orb == aspectType.getDefaultOrb()) {
+           			listBox.setItemSelected(index, true);
+           		}
+           		index++;
+        	}
+        	aspectListboxes.put(aspectType, listBox);
+        	aspectFlex.setWidget(aspectRow, 2, listBox);
+        	aspectRow++;
+        }
+        
+        contentTable.setWidget(row, 0, aspectFlex);
+        contentTable.getFlexCellFormatter().setColSpan(row, 0, 2);
+        row++;
+        
+        /*
         for (final AspectType aspectType : AspectType.values()) {
         	final HorizontalPanel pan = new HorizontalPanel();
         	final CheckBox aspectCheckBox = new CheckBox();
@@ -144,6 +183,7 @@ public class NowView extends Composite implements NowPresenter.Display {
         	pan.add(new Label(aspectType.getUnicode() + " " + aspectType.name() + "s: "));
         	addWidgetRow(pan, aspectLabel);
         }
+        */
         
         contentTable.setWidget(row, 0, new HTML("&nbsp;"));
         row++;
@@ -251,6 +291,18 @@ public class NowView extends Composite implements NowPresenter.Display {
     @Override
     public final CheckBox getAspectCheckBox(final AspectType type) {
         return aspectCheckBoxes.get(type);
+    }
+    
+    @Override
+    public final ListBox getAspectListBox(final AspectType type) {
+        return aspectListboxes.get(type);
+    }
+
+    @Override
+    public final double getAspectOrb(final AspectType type) {
+    	final ListBox box = aspectListboxes.get(type);
+        final int selection =  box.getSelectedIndex();
+        return Double.valueOf(box.getItemText(selection));
     }
     
     @Override

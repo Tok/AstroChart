@@ -65,7 +65,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 	private Epoch epoch;
 	private Date localNow;
 	private Date utcNow;
-	
+	private boolean disableUpdate = false;
 	private final Map<String, TextPosition> aspects = new HashMap<String, TextPosition>();
 	
 	public interface Display {
@@ -73,20 +73,23 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		Button getUpdatePositionsButton();
 		Button getRegenerateChartButton();
 		Canvas getChart();
-		Label getNowLabel();
 		Label getUtcLabel();
-		Label getLocalJdLabel();
 		Label getUtcJdLabel();
-		Label getLocalSidLabel();
 		Label getUtcSidLabel();
 		CheckBox getPlanetCheckBox(Planet planet);
 		Label getPlanetLabel(Planet planet);
+		Button getSelectAllPlanetsButton();
+		Button getUnselectAllPlanetsButton();
 		CheckBox getAspectCheckBox(AspectType type);
 		double getAspectOrb(AspectType type);
 		ListBox getAspectListBox(AspectType type);
 		Label getAspectLabel(AspectType type);
 		void resetAspects();
 		void addAspect(AspectType aspectType);
+		Button resetOrbsButton();
+		void resetOrbs();
+		Button getSelectAllAspectsButton();
+		Button getUnselectAllAspectsButton();
 		TextBox getLocationTextBox();
 		Button getSubmitCityButton();
 		TextBox getLatitudeTextBox();
@@ -125,7 +128,29 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 					regenerateChart();
 				}
 			});
-    	}    	
+    	}
+    	this.display.getSelectAllPlanetsButton().addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				disableUpdate = true;
+				for (final Planet planet : Planet.values()) {
+					display.getPlanetCheckBox(planet).setValue(true);
+				}
+				disableUpdate = false;
+				regenerateChart();
+			}
+		});
+    	this.display.getUnselectAllPlanetsButton().addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				disableUpdate = true;
+				for (final Planet planet : Planet.values()) {
+					display.getPlanetCheckBox(planet).setValue(false);
+				}
+				disableUpdate = false;
+				regenerateChart();
+			}
+		});
     	for (final AspectType type : AspectType.values()) {
     		this.display.getAspectCheckBox(type).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 				@Override
@@ -139,7 +164,39 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 					regenerateChart();
 				}
 			});
-    	}    	
+    	}
+    	this.display.resetOrbsButton().addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				disableUpdate = true;
+				display.resetOrbs();
+				disableUpdate = false;
+				regenerateChart();
+				
+			}
+		});
+    	this.display.getSelectAllAspectsButton().addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				disableUpdate = true;
+				for (final AspectType aspectType : AspectType.values()) {
+					display.getAspectCheckBox(aspectType).setValue(true);
+				}
+				disableUpdate = false;
+				regenerateChart();
+			}
+		});
+    	this.display.getUnselectAllAspectsButton().addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				disableUpdate = true;
+				for (final AspectType aspectType : AspectType.values()) {
+					display.getAspectCheckBox(aspectType).setValue(false);
+				}
+				disableUpdate = false;
+				regenerateChart();
+			}
+		});
     	this.display.getLocationTextBox().addKeyUpHandler(new KeyUpHandler() {
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
@@ -204,17 +261,16 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     	display.getStatusLabel().setText("Updating positions.");
     	
         localNow = new Date();
-        
-		display.getNowLabel().setText(dateTimeUtil.formatLocalDate(localNow));
+		display.getUtcLabel().setTitle("Local Time: " + dateTimeUtil.formatLocalDate(localNow));
 		display.getUtcLabel().setText(dateTimeUtil.formatDateAsUtc(localNow));
 
 		utcNow = dateTimeUtil.getUtcDate(localNow);
-		display.getLocalJdLabel().setText(dateTimeUtil.getFormattedJdTimeDate(localNow));
+		display.getUtcJdLabel().setTitle("Local JD Time: " + dateTimeUtil.getFormattedJdTimeDate(localNow));
 		display.getUtcJdLabel().setText(dateTimeUtil.getFormattedJdTimeDate(utcNow));
 
 		final Date sidDate = dateTimeUtil.getLocalSidTimeDate(localNow); //also known as LST
-		display.getLocalSidLabel().setText(dateTimeUtil.formatLocalDate(sidDate));
 		final Date utcSidDate = dateTimeUtil.getLocalSidTimeDate(localNow); //also known as GMST
+		display.getUtcSidLabel().setTitle("Local Sidereal Time: " + dateTimeUtil.formatLocalDate(sidDate));
 		display.getUtcSidLabel().setText(dateTimeUtil.formatDateAsUtc(utcSidDate));
 		
 		epochService.readEpoch(utcSidDate, new AsyncCallback<Epoch>() {
@@ -317,7 +373,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     	} else {
     		display.getLocationTextBox().setText(geocode.getCityName());
 		
-    		final NumberFormat nf = NumberFormat.getFormat("#.0000000");
+    		final NumberFormat nf = NumberFormat.getFormat("0.0000000");
     		display.getLatitudeTextBox().setText(nf.format(geocode.getLatitude()));
     		display.getLongitudeTextBox().setText(nf.format(geocode.getLongitude()));
 
@@ -341,6 +397,9 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     }
 
     private final void regenerateChart() {
+    	if (disableUpdate) {
+    		return;
+    	}
 		display.getStatusLabel().setText("Generating chart...");
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 			@Override

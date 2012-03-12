@@ -22,9 +22,9 @@ public class BodyPosition {
 	public final String toString() {
 		final StringBuilder builder = new StringBuilder();
 		builder.append("Azimuth: ");
-		builder.append(NumberFormat.getFormat("#.000").format(azimuth));
+		builder.append(NumberFormat.getFormat("0.000").format(azimuth));
 		builder.append(" Height: ");
-		builder.append(NumberFormat.getFormat("#.000").format(height));
+		builder.append(NumberFormat.getFormat("0.000").format(height));
 		return builder.toString();
 	}
 	

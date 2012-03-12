@@ -14,7 +14,7 @@ public class DateTimeUtil {
 	private final DateTimeFormat dateTimeFormat = DateTimeFormat.getFormat("yyyy.MM.dd HH:mm:ss");
 
 	private final NumberFormat nf = NumberFormat.getFormat("00"); //number format for hours, minutes or seconds
-	private final NumberFormat jdNf = NumberFormat.getFormat("#.0000"); //number format for JD
+	private final NumberFormat jdNf = NumberFormat.getFormat("0.0000"); //number format for JD
     
 	public final String formatDateAsUtc(final Date localDate) {
 		return dateTimeFormat.format(localDate, TimeZone.createTimeZone(0));

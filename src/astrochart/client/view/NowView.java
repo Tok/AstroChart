@@ -29,11 +29,8 @@ public class NowView extends Composite implements NowPresenter.Display {
     private final Button submitLatitudeButton = new Button("Set");
     private final TextBox longitudeTextBox = new TextBox();
     private final Button submitLongitudeButton = new Button("Set");
-    private final Label nowLabel = new Label();
     private final Label utcLabel = new Label();
-    private final Label localJdLabel = new Label();
     private final Label utcJdLabel = new Label();
-    private final Label sidLabel = new Label();
     private final Label utcSidLabel = new Label();
     private final Label sunriseLabel = new Label();
     private final Label sunsetLabel = new Label();
@@ -45,9 +42,14 @@ public class NowView extends Composite implements NowPresenter.Display {
     
     private final Map<Planet, CheckBox> planetCheckBoxes = new HashMap<Planet, CheckBox>();
     private final Map<Planet, Label> planetLabels = new HashMap<Planet, Label>();
+    private final Button selectAllPlanetsButton = new Button("Select All");
+    private final Button unselectAllPlanetsButton = new Button("Unselect All");
     private final Map<AspectType, CheckBox> aspectCheckBoxes = new HashMap<AspectType, CheckBox>();
     private final Map<AspectType, Label> aspectLabels = new HashMap<AspectType, Label>();
     private final Map<AspectType, ListBox> aspectListboxes = new HashMap<AspectType, ListBox>();
+    private final Button selectAllAspectsButton = new Button("Select All");
+    private final Button unselectAllAspectsButton = new Button("Unselect All");
+    private final Button resetOrbsButton = new Button("Reset Orbs");
     
     private int row;
     
@@ -101,17 +103,15 @@ public class NowView extends Composite implements NowPresenter.Display {
        	} else {
        		contentTable.setText(row, 0, "Fail: Your browser doesn't support HTML5 Canvas.");
        	}
+
         
-    	contentTable.setText(row, 1, "Local Time: ");
+    	contentTable.setText(row, 1, "UTC Time: ");
     	contentTable.getCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_MIDDLE);
-    	contentTable.setWidget(row, 2, nowLabel);
+    	contentTable.setWidget(row, 2, utcLabel);
     	contentTable.getCellFormatter().setVerticalAlignment(row, 1, HasVerticalAlignment.ALIGN_MIDDLE);
     	row++;
-    	
-        addRow("UTC Time: ", utcLabel);
-        addRow("Local JD Time: ", localJdLabel);
+
         addRow("UTC JD Time: ", utcJdLabel);
-        addRow("Local Sidereal Time: ", sidLabel);
         addRow("UTC Sidereal Time: ", utcSidLabel);
         
         contentTable.setWidget(row, 0, new HTML("&nbsp;"));
@@ -130,7 +130,15 @@ public class NowView extends Composite implements NowPresenter.Display {
         	pan.add(new Label(planet.getUnicode() + " " + planet.name() + ": "));
         	addWidgetRow(pan, planetLabel);
         }
-
+        
+        final HorizontalPanel planetButtonPan = new HorizontalPanel();
+        planetButtonPan.add(selectAllPlanetsButton);
+        planetButtonPan.add(unselectAllPlanetsButton);
+    	contentTable.setWidget(row, 0, planetButtonPan);
+    	contentTable.getCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_TOP);        
+    	contentTable.getFlexCellFormatter().setColSpan(row, 0, 2);    
+        row++;
+        
         contentTable.setWidget(row, 0, new HTML("&nbsp;"));
         row++;
         
@@ -153,37 +161,27 @@ public class NowView extends Composite implements NowPresenter.Display {
         	aspectFlex.setWidget(aspectRow, 1, aspectLabel);
         	final ListBox listBox = new ListBox();
         	listBox.setWidth("70px");
-            int index = 0;
         	for (final double orb : aspectType.getOrbs()) {
         		listBox.addItem(String.valueOf(orb));
-           		if (orb == aspectType.getDefaultOrb()) {
-           			listBox.setItemSelected(index, true);
-           		}
-           		index++;
-        	}
+       		}
         	aspectListboxes.put(aspectType, listBox);
         	aspectFlex.setWidget(aspectRow, 2, listBox);
         	aspectRow++;
         }
+        resetOrbs();
         
         contentTable.setWidget(row, 0, aspectFlex);
         contentTable.getFlexCellFormatter().setColSpan(row, 0, 2);
         row++;
         
-        /*
-        for (final AspectType aspectType : AspectType.values()) {
-        	final HorizontalPanel pan = new HorizontalPanel();
-        	final CheckBox aspectCheckBox = new CheckBox();
-        	aspectCheckBox.setValue(true);
-        	aspectCheckBoxes.put(aspectType, aspectCheckBox);
-        	final Label aspectLabel = new Label();
-        	aspectLabels.put(aspectType, aspectLabel);
-        	aspectLabel.setText("0");
-        	pan.add(aspectCheckBox);
-        	pan.add(new Label(aspectType.getUnicode() + " " + aspectType.name() + "s: "));
-        	addWidgetRow(pan, aspectLabel);
-        }
-        */
+        final HorizontalPanel aspectButtonPan = new HorizontalPanel();
+        aspectButtonPan.add(selectAllAspectsButton);
+        aspectButtonPan.add(unselectAllAspectsButton);
+        aspectButtonPan.add(resetOrbsButton);
+    	contentTable.setWidget(row, 0, aspectButtonPan);
+    	contentTable.getCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_TOP);        
+    	contentTable.getFlexCellFormatter().setColSpan(row, 0, 2);
+        row++;
         
         contentTable.setWidget(row, 0, new HTML("&nbsp;"));
         row++;
@@ -244,18 +242,8 @@ public class NowView extends Composite implements NowPresenter.Display {
     }
     
     @Override
-    public final Label getNowLabel() {
-        return nowLabel;
-    }
-    
-    @Override
     public final Label getUtcLabel() {
         return utcLabel;
-    }
-    
-    @Override
-    public final Label getLocalJdLabel() {
-        return localJdLabel;
     }
 
     @Override
@@ -266,11 +254,6 @@ public class NowView extends Composite implements NowPresenter.Display {
     @Override
     public final Label getUtcSidLabel() {
         return utcSidLabel;
-    }
-    
-    @Override
-    public final Label getLocalSidLabel() {
-        return sidLabel;
     }
     
     @Override
@@ -286,6 +269,16 @@ public class NowView extends Composite implements NowPresenter.Display {
     @Override
     public final Label getPlanetLabel(final Planet planet) {
         return planetLabels.get(planet);
+    }
+
+    @Override
+    public final Button getSelectAllPlanetsButton() {
+        return selectAllPlanetsButton;
+    }
+    
+    @Override
+    public final Button getUnselectAllPlanetsButton() {
+        return unselectAllPlanetsButton;
     }
 
     @Override
@@ -323,6 +316,34 @@ public class NowView extends Composite implements NowPresenter.Display {
     	int counter = Integer.parseInt(label.getText());
     	counter++;
     	label.setText(String.valueOf(counter));
+    }
+    
+    @Override
+    public final Button resetOrbsButton() {
+        return resetOrbsButton;
+    }
+    
+    @Override
+    public final Button getUnselectAllAspectsButton() {
+        return unselectAllAspectsButton;
+    }
+    
+    @Override
+    public final Button getSelectAllAspectsButton() {
+        return selectAllAspectsButton;
+    }
+    
+    @Override
+    public final void resetOrbs() {
+    	for (final AspectType aspectType : AspectType.values()) {
+    		int index = 0;
+    		for (final double orb : aspectType.getOrbs()) {
+    			if (orb == aspectType.getDefaultOrb()) {
+    				getAspectListBox(aspectType).setItemSelected(index, true);
+    			}
+    			index++;
+    		}
+    	}
     }
     
     @Override
@@ -379,4 +400,5 @@ public class NowView extends Composite implements NowPresenter.Display {
     public final Label getStatusLabel() {
         return statusLabel;        
     }
+
 }

@@ -1,12 +1,15 @@
 package astrochart.client.presenter;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import astrochart.client.service.EpochService;
 import astrochart.client.service.EpochServiceAsync;
 import astrochart.client.service.GeocodeService;
 import astrochart.client.service.GeocodeServiceAsync;
 import astrochart.client.util.AstrologyUtil;
 import astrochart.client.util.DateTimeUtil;
+import astrochart.shared.AspectType;
 import astrochart.shared.ChartColor;
 import astrochart.shared.ChartProportions;
 import astrochart.shared.Planet;
@@ -56,8 +59,10 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 	private Epoch epoch;
 	private Date localNow;
 	private Date utcNow;
+	
+	private final Set<String> aspectKeys = new HashSet<String>();
 
-    public interface Display {
+	public interface Display {
         Widget asWidget();
 		Button getUpdatePositionsButton();
 		Button getRegenerateChartButton();
@@ -70,6 +75,10 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		Label getUtcSidLabel();
 		CheckBox getPlanetCheckBox(Planet planet);
 		Label getPlanetLabel(Planet planet);
+		CheckBox getAspectCheckBox(AspectType type);
+		Label getAspectLabel(AspectType type);
+		void resetAspects();
+		void addAspect(AspectType aspectType);
 		TextBox getLocationTextBox();
 		Button getSubmitCityButton();
 		TextBox getLatitudeTextBox();
@@ -101,8 +110,16 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 				regenerateChart();
 			}
 		});    	
-    	for (Planet planet : Planet.values()) {
+    	for (final Planet planet : Planet.values()) {
     		this.display.getPlanetCheckBox(planet).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+				@Override
+				public void onValueChange(ValueChangeEvent<Boolean> event) {
+					regenerateChart();
+				}
+			});
+    	}    	
+    	for (final AspectType type : AspectType.values()) {
+    		this.display.getAspectCheckBox(type).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 				@Override
 				public void onValueChange(ValueChangeEvent<Boolean> event) {
 					regenerateChart();
@@ -413,26 +430,14 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			}
 			
 			//draw aspects
-			ctx.setLineWidth(0.2D);
+			display.resetAspects();
+			aspectKeys.clear(); //used to check if aspect is already placed.
+			ctx.setFont("12pt Arial");
 			for (final Planet firstPlanet : Planet.values()) {
 				if (display.getPlanetCheckBox(firstPlanet).getValue()) {
 					for (final Planet secondPlanet : Planet.values()) {
 						if (display.getPlanetCheckBox(secondPlanet).getValue()) {
-							final ZodiacSign firstSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(firstPlanet));
-							final double firstDegrees = epoch.getPreciseDegrees(firstPlanet) + firstSign.getEclipticLongitude();
-							final double firstAngle = keepInRange(firstDegrees + 90D - Double.valueOf(offset).intValue());
-							final ZodiacSign secondSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(secondPlanet));
-							final double secondDegrees = epoch.getPreciseDegrees(secondPlanet) + secondSign.getEclipticLongitude();
-							final double secondAngle = keepInRange(secondDegrees + 90D - Double.valueOf(offset).intValue()); 
-							final double xFirst = getHcs() - 
-									(Math.sin(Math.toRadians(firstAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
-							final double yFirst = getHcs() - 
-									(Math.cos(Math.toRadians(firstAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
-							final double xSecond = getHcs() - 
-									(Math.sin(Math.toRadians(secondAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
-							final double ySecond = getHcs() - 
-									(Math.cos(Math.toRadians(secondAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
-							drawLine(xFirst, yFirst, xSecond, ySecond);
+							drawAspectLine(ctx, firstPlanet, secondPlanet, offset);
 						}
 					}
 				}
@@ -441,7 +446,59 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 
 		display.getStatusLabel().setText("Ready.");
     }
+	
+	private final void drawAspectLine(final Context2d ctx, final Planet firstPlanet, final Planet secondPlanet, final double offset) {
+		if (firstPlanet.equals(secondPlanet) ||
+			aspectKeys.contains(secondPlanet.name() + ":" + firstPlanet.name())) {
+			return; //aspect already placed
+		}
+		aspectKeys.add(firstPlanet.name() + ":" + secondPlanet.name());
 		
+		final ZodiacSign firstSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(firstPlanet));
+		final double firstDegrees = epoch.getPreciseDegrees(firstPlanet) + firstSign.getEclipticLongitude();
+		final double firstAngle = keepInRange(firstDegrees + 90D - Double.valueOf(offset).intValue());
+		final ZodiacSign secondSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(secondPlanet));
+		final double secondDegrees = epoch.getPreciseDegrees(secondPlanet) + secondSign.getEclipticLongitude();
+		final double secondAngle = keepInRange(secondDegrees + 90D - Double.valueOf(offset).intValue()); 
+				
+		final double xFirst = getHcs() - 
+				(Math.sin(Math.toRadians(firstAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
+		final double yFirst = getHcs() - 
+				(Math.cos(Math.toRadians(firstAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
+		final double xSecond = getHcs() - 
+				(Math.sin(Math.toRadians(secondAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
+		final double ySecond = getHcs() - 
+				(Math.cos(Math.toRadians(secondAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
+		
+		boolean isMajorAspect = false;
+		double difference = firstAngle - secondAngle;
+		if (difference < 0D) {
+			difference = difference * -1D;
+		}
+		AspectType isType = null;
+		for (final AspectType type : AspectType.values()) {
+			if (difference <= type.getAngle() + type.getOrb() && 
+				difference >= type.getAngle() - type.getOrb()) {
+				display.addAspect(type);
+				isType = type;
+				isMajorAspect = true;
+				break;
+			}
+		}
+		if (isMajorAspect && 
+				display.getAspectCheckBox(isType).getValue()) {
+			ctx.setLineWidth(2.0D);
+			drawLine(xFirst, yFirst, xSecond, ySecond);
+			final double x = ((xFirst + xSecond) / 2D) -6D;
+			final double y = ((yFirst + ySecond) / 2D) +6D;
+			ctx.fillRect(x -1D, y - 12D, 14D, 15D);
+			ctx.strokeText(String.valueOf(isType.getUnicode()), x, y);
+		} else {
+			ctx.setLineWidth(0.2D);
+			drawLine(xFirst, yFirst, xSecond, ySecond);			
+		}
+	}
+	
 	private final void drawExcentricLine(final Context2d ctx, final double angle, 
 			final ChartProportions from, final ChartProportions to) {
 		final double xFrom = getHcs() - 

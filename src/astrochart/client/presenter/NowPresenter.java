@@ -252,8 +252,10 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		//XXX Experimental HTML5 Geolocation
 		//tryToGetGeolocationFromBrowser();
 		
-        updateGeodataByIp();
-		
+        if (display.getLocationTextBox().getText().equals("unknown")) {
+        	updateGeodataByIp();
+        }
+        
 		this.display.getLocationTextBox().setFocus(true);
     }
 

@@ -1,8 +1,10 @@
 package astrochart.client.presenter;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import astrochart.client.service.EpochService;
 import astrochart.client.service.EpochServiceAsync;
 import astrochart.client.service.GeocodeService;
@@ -19,6 +21,7 @@ import astrochart.shared.data.GeocodeData;
 import astrochart.shared.wrappers.AscendentAndOffset;
 import astrochart.shared.wrappers.BodyPosition;
 import astrochart.shared.wrappers.RiseAndSet;
+import astrochart.shared.wrappers.TextPosition;
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.canvas.dom.client.CssColor;
@@ -60,8 +63,8 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 	private Date localNow;
 	private Date utcNow;
 	
-	private final Set<String> aspectKeys = new HashSet<String>();
-
+	private final Map<String, TextPosition> aspects = new HashMap<String, TextPosition>();
+	
 	public interface Display {
         Widget asWidget();
 		Button getUpdatePositionsButton();
@@ -431,8 +434,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 			
 			//draw aspects
 			display.resetAspects();
-			aspectKeys.clear(); //used to check if aspect is already placed.
-			ctx.setFont("12pt Arial");
+			aspects.clear();
 			for (final Planet firstPlanet : Planet.values()) {
 				if (display.getPlanetCheckBox(firstPlanet).getValue()) {
 					for (final Planet secondPlanet : Planet.values()) {
@@ -442,6 +444,22 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 					}
 				}
 			}
+			
+			//write aspect labels
+			ctx.setFont("12pt Arial");			
+			final Iterator<Entry<String, TextPosition>> it = aspects.entrySet().iterator();
+			while (it.hasNext()) {
+				final Entry<String, TextPosition> entry = it.next();
+				if (entry.getValue() != null) {
+					final TextPosition tp = entry.getValue();
+					ctx.setLineWidth(0.4D);
+					ctx.fillRect(tp.getX() -1D, tp.getY() - 12D, 14D, 15D);
+					ctx.strokeRect(tp.getX() -1D, tp.getY() - 12D, 14D, 15D);
+					ctx.setLineWidth(1D);
+					ctx.strokeText(tp.getText(), tp.getX(), tp.getY());
+					it.remove(); // avoids a ConcurrentModificationException
+				}
+			}
 		}
 
 		display.getStatusLabel().setText("Ready.");
@@ -449,10 +467,9 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 	
 	private final void drawAspectLine(final Context2d ctx, final Planet firstPlanet, final Planet secondPlanet, final double offset) {
 		if (firstPlanet.equals(secondPlanet) ||
-			aspectKeys.contains(secondPlanet.name() + ":" + firstPlanet.name())) {
+			aspects.containsKey(secondPlanet.name() + ":" + firstPlanet.name())) {
 			return; //aspect already placed
 		}
-		aspectKeys.add(firstPlanet.name() + ":" + secondPlanet.name());
 		
 		final ZodiacSign firstSign = ZodiacSign.valueOfAbbrevistion(epoch.getSign(firstPlanet));
 		final double firstDegrees = epoch.getPreciseDegrees(firstPlanet) + firstSign.getEclipticLongitude();
@@ -470,7 +487,6 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		final double ySecond = getHcs() - 
 				(Math.cos(Math.toRadians(secondAngle)) * ChartProportions.getRadius(getHcs(), ChartProportions.Inner));
 		
-		boolean isMajorAspect = false;
 		double difference = firstAngle - secondAngle;
 		if (difference < 0D) {
 			difference = difference * -1D;
@@ -479,24 +495,26 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		for (final AspectType type : AspectType.values()) {
 			if (difference <= type.getAngle() + type.getOrb() && 
 				difference >= type.getAngle() - type.getOrb()) {
-				display.addAspect(type);
 				isType = type;
-				isMajorAspect = true;
 				break;
 			}
 		}
-		if (isMajorAspect && 
-				display.getAspectCheckBox(isType).getValue()) {
+		TextPosition tp = null;
+		if (isType != null) {
 			ctx.setLineWidth(2.0D);
 			drawLine(xFirst, yFirst, xSecond, ySecond);
-			final double x = ((xFirst + xSecond) / 2D) -6D;
-			final double y = ((yFirst + ySecond) / 2D) +6D;
-			ctx.fillRect(x -1D, y - 12D, 14D, 15D);
-			ctx.strokeText(String.valueOf(isType.getUnicode()), x, y);
+			display.addAspect(isType);
+			if (display.getAspectCheckBox(isType).getValue()) {
+				final double x = ((xFirst + xSecond) / 2D) -6D;
+				final double y = ((yFirst + ySecond) / 2D) +6D;
+				tp = new TextPosition(String.valueOf(isType.getUnicode()), x, y);
+			}
 		} else {
 			ctx.setLineWidth(0.2D);
 			drawLine(xFirst, yFirst, xSecond, ySecond);			
 		}
+		
+		aspects.put(firstPlanet.name() + ":" + secondPlanet.name(), tp);
 	}
 	
 	private final void drawExcentricLine(final Context2d ctx, final double angle, 

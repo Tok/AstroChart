@@ -7,8 +7,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import com.google.gwt.i18n.client.NumberFormat;
-import astrochart.shared.Planet;
-import astrochart.shared.ZodiacSign;
+import astrochart.shared.enums.Planet;
+import astrochart.shared.enums.ZodiacSign;
 
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)

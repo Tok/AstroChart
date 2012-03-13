@@ -1,7 +1,7 @@
 package astrochart.shared.wrappers;
 
 import com.google.gwt.i18n.client.NumberFormat;
-import astrochart.shared.ZodiacSign;
+import astrochart.shared.enums.ZodiacSign;
 
 public class AscendentAndOffset {
 	private final ZodiacSign ascendent;

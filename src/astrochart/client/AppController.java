@@ -23,7 +23,7 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
     private HasWidgets container;
 
     private final TabPanel tabPanel = new TabPanel();
-    private final NowView nowView = new NowView();
+    private final NowView nowView = new NowView(eventBus);
     private final InfoView infoView = new InfoView();
     private final AdminView adminView = new AdminView();
 
@@ -61,7 +61,7 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
 
     private void bind() {
         History.addValueChangeHandler(this);
-        eventBus.addHandler(CancelledEvent.type, new CancelledEventHandler() {
+        eventBus.addHandler(CancelledEvent.TYPE, new CancelledEventHandler() {
             @Override
             public void onCancelled(final CancelledEvent event) {
                 doEditTermCancelled();

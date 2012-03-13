@@ -2,6 +2,8 @@ package astrochart.shared;
 
 import java.util.HashMap;
 import java.util.Map;
+import astrochart.shared.enums.RashimanaGroup;
+import astrochart.shared.enums.ZodiacSign;
 
 /**
  * Lengths of the equinoctial shadow of a Shanku of 12 units at different latitudes

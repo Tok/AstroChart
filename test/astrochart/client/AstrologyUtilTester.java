@@ -3,7 +3,7 @@ package astrochart.client;
 import java.util.Date;
 import astrochart.client.util.AstrologyUtil;
 import astrochart.client.util.DateTimeUtil;
-import astrochart.shared.ZodiacSign;
+import astrochart.shared.enums.ZodiacSign;
 import astrochart.shared.wrappers.BodyPosition;
 import astrochart.shared.wrappers.RiseAndSet;
 import com.google.gwt.i18n.client.DateTimeFormat;

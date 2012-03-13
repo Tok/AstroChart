@@ -2,7 +2,7 @@ package astrochart.client.util;
 
 import java.util.Date;
 import astrochart.shared.EquinocticalShaddowLengths;
-import astrochart.shared.ZodiacSign;
+import astrochart.shared.enums.ZodiacSign;
 import astrochart.shared.wrappers.AscendentAndOffset;
 import astrochart.shared.wrappers.BodyPosition;
 import astrochart.shared.wrappers.RiseAndSet;

@@ -242,6 +242,25 @@ public class DateTimeUtil {
 	    return result;
     }
 
-
+	/**
+	 * http://en.wikipedia.org/wiki/Leap_year#Algorithm
+	 * @param year
+	 * @return
+	 */
+	public final static boolean isLeapYear(final int year) {
+		if (year % 4 == 0) {			
+			if (year % 100 == 0) {
+				if (year % 400 == 0) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				return true;
+			}
+		} else {
+			return false;
+		}
+	}
 	
 }

@@ -5,19 +5,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import astrochart.client.event.DateUpdatedEvent;
+import astrochart.client.event.DateUpdatedEventHandler;
 import astrochart.client.service.EpochService;
 import astrochart.client.service.EpochServiceAsync;
 import astrochart.client.service.GeocodeService;
 import astrochart.client.service.GeocodeServiceAsync;
 import astrochart.client.util.AstrologyUtil;
 import astrochart.client.util.DateTimeUtil;
-import astrochart.shared.AspectType;
-import astrochart.shared.ChartColor;
-import astrochart.shared.ChartProportions;
-import astrochart.shared.Planet;
-import astrochart.shared.ZodiacSign;
+import astrochart.client.widgets.TimeEntry;
 import astrochart.shared.data.Epoch;
 import astrochart.shared.data.GeocodeData;
+import astrochart.shared.enums.AspectType;
+import astrochart.shared.enums.ChartColor;
+import astrochart.shared.enums.ChartProportions;
+import astrochart.shared.enums.Planet;
+import astrochart.shared.enums.ZodiacSign;
 import astrochart.shared.wrappers.AscendentAndOffset;
 import astrochart.shared.wrappers.BodyPosition;
 import astrochart.shared.wrappers.RiseAndSet;
@@ -101,6 +104,7 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
 		Label getAscendentLabel();
 		Label getStatusLabel();
 		Label getSunPositionLabel();
+		TimeEntry getTimeEntry();
     }
 
     public NowPresenter(final HandlerManager eventBus, final TabPanel tabPanel, final Display view) {
@@ -109,6 +113,13 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     }
 
     public final void bind() {
+    	getEventBus().addHandler(DateUpdatedEvent.TYPE, 
+    			new DateUpdatedEventHandler() {			
+					@Override
+					public void onDateUpdated(DateUpdatedEvent event) {
+						updateEpoch();
+					}
+		});
     	this.display.getUpdatePositionsButton().addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -262,17 +273,20 @@ public class NowPresenter extends AbstractTabPresenter implements Presenter {
     private final void updateEpoch() {
     	display.getStatusLabel().setText("Updating positions.");
     	
-        localNow = new Date();
-		display.getUtcLabel().setTitle("Local Time: " + dateTimeUtil.formatLocalDate(localNow));
+        localNow = display.getTimeEntry().getLocalDate();
+		display.getUtcLabel().setTitle("As Time in your local timezone: \n" + 
+				dateTimeUtil.formatLocalDate(localNow) + display.getTimeEntry().getClientTimezone());
 		display.getUtcLabel().setText(dateTimeUtil.formatDateAsUtc(localNow));
 
 		utcNow = dateTimeUtil.getUtcDate(localNow);
-		display.getUtcJdLabel().setTitle("Local JD Time: " + dateTimeUtil.getFormattedJdTimeDate(localNow));
+		display.getUtcJdLabel().setTitle("As JD Time in your local timezone: \n" + 
+				dateTimeUtil.getFormattedJdTimeDate(localNow) + display.getTimeEntry().getClientTimezone());
 		display.getUtcJdLabel().setText(dateTimeUtil.getFormattedJdTimeDate(utcNow));
 
 		final Date sidDate = dateTimeUtil.getLocalSidTimeDate(localNow); //also known as LST
 		final Date utcSidDate = dateTimeUtil.getLocalSidTimeDate(localNow); //also known as GMST
-		display.getUtcSidLabel().setTitle("Local Sidereal Time: " + dateTimeUtil.formatLocalDate(sidDate));
+		display.getUtcSidLabel().setTitle("As Sidereal Time in your local timezone: \n" + 
+				dateTimeUtil.formatLocalDate(sidDate) + display.getTimeEntry().getClientTimezone());
 		display.getUtcSidLabel().setText(dateTimeUtil.formatDateAsUtc(utcSidDate));
 		
 		epochService.readEpoch(utcSidDate, new AsyncCallback<Epoch>() {

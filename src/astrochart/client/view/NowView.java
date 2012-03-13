@@ -3,9 +3,11 @@ package astrochart.client.view;
 import java.util.HashMap;
 import java.util.Map;
 import astrochart.client.presenter.NowPresenter;
-import astrochart.shared.AspectType;
-import astrochart.shared.Planet;
+import astrochart.client.widgets.TimeEntry;
+import astrochart.shared.enums.AspectType;
+import astrochart.shared.enums.Planet;
 import com.google.gwt.canvas.client.Canvas;
+import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Composite;
@@ -17,6 +19,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class NowView extends Composite implements NowPresenter.Display {
@@ -51,9 +54,10 @@ public class NowView extends Composite implements NowPresenter.Display {
     private final Button unselectAllAspectsButton = new Button("Unselect All");
     private final Button resetOrbsButton = new Button("Reset Orbs");
     
+    private TimeEntry timeEntry;
     private int row;
     
-    public NowView() {
+    public NowView(final HandlerManager eventBus) {
         final DecoratorPanel contentTableDecorator = new DecoratorPanel();
         contentTableDecorator.setWidth("1010px");
         initWidget(contentTableDecorator);
@@ -95,15 +99,18 @@ public class NowView extends Composite implements NowPresenter.Display {
         contentTable.setWidget(row, 0, buttonPanel);
         contentTable.getFlexCellFormatter().setColSpan(row, 0, 3);
         row++;
-        
+
+        timeEntry = new TimeEntry(eventBus);
+        final VerticalPanel chartPanel = new VerticalPanel();
+        chartPanel.add(timeEntry);
         if (chart != null) {
        	  	chart.setCoordinateSpaceHeight(600);
        	  	chart.setCoordinateSpaceWidth(600);
-          	contentTable.setWidget(row, 0, chart);
+       	  	chartPanel.add(chart);
        	} else {
-       		contentTable.setText(row, 0, "Fail: Your browser doesn't support HTML5 Canvas.");
+       	  	chartPanel.add(new Label("Fail: Your browser doesn't support HTML5 Canvas."));
        	}
-
+      	contentTable.setWidget(row, 0, chartPanel);
         
     	contentTable.setText(row, 1, "UTC Time: ");
     	contentTable.getCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -398,7 +405,11 @@ public class NowView extends Composite implements NowPresenter.Display {
     
     @Override
     public final Label getStatusLabel() {
-        return statusLabel;        
+        return statusLabel;
     }
-
+    
+    @Override
+    public final TimeEntry getTimeEntry() {
+        return timeEntry;
+    }
 }

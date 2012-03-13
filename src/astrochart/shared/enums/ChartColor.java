@@ -1,4 +1,4 @@
-package astrochart.shared;
+package astrochart.shared.enums;
 
 public enum ChartColor {
 	Black("#000000"),

@@ -16,6 +16,10 @@
     <div id="page">
 	    <div id="title"></div>
 		<div id="content"></div>
+		<input type="hidden" id="timeZone" name="timeZone" />
+		<script type="text/javascript">
+    		document.getElementById('timeZone').value = ((new Date().getTimezoneOffset() / 60) * -1); 
+		</script>
 	</div>
   </body>
 </html>

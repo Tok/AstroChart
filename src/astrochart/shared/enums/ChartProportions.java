@@ -1,4 +1,4 @@
-package astrochart.shared;
+package astrochart.shared.enums;
 
 public enum ChartProportions {
 	Outer(1.00D),

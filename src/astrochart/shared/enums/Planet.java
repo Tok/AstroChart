@@ -1,4 +1,4 @@
-package astrochart.shared;
+package astrochart.shared.enums;
 
 public enum Planet {
 	Sun(       3, '\u2609', true,  false), 

@@ -1,4 +1,4 @@
-package astrochart.shared;
+package astrochart.shared.enums;
 
 /**
  * compare: http://www.vedicastro.com/astronomy6.asp

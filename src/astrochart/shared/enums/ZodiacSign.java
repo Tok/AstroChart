@@ -1,4 +1,5 @@
-package astrochart.shared;
+package astrochart.shared.enums;
+
 
 public enum ZodiacSign {
 	Aries(         0, ChartColor.Red,    '\u2648', "AR", "LI", RashimanaGroup.I,   false),

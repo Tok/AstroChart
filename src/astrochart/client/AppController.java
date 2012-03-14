@@ -42,8 +42,8 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
             public void onSelection(final SelectionEvent<Integer> event) {
                 final int selection = event.getSelectedItem().intValue();
                 if (selection == 0) {
-                    if (!History.getToken().startsWith("now")) {
-                        History.newItem("now/");
+                    if (!History.getToken().startsWith("chart")) {
+                        History.newItem("chart/");
                     }
                 }
                 if (selection == 1) {
@@ -55,7 +55,7 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
         });
 
         tabPanel.setAnimationEnabled(true); //XXX
-        tabPanel.add(chartView.asWidget(), "Tropical Now");
+        tabPanel.add(chartView.asWidget(), "Chart");
         tabPanel.add(infoView.asWidget(), "Info");
     }
 
@@ -70,14 +70,14 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
     }
 
     private final void doEditTermCancelled() {
-    	History.newItem("now/");
+    	History.newItem("chart/");
     }
 
     @Override
     public final void go(final HasWidgets container) {
         this.container = container;
         if ("".equals(History.getToken())) {
-            History.newItem("now/");
+            History.newItem("chart/");
         } else {
             History.fireCurrentHistoryState();
         }
@@ -86,7 +86,7 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
     @Override
     public final void onValueChange(final ValueChangeEvent<String> event) {
         final String token = event.getValue();
-        if (token.startsWith("now/")) {
+        if (token.startsWith("chart/")) {
         	tabPanel.selectTab(0);
             mainPresenter = new ChartPresenter(eventBus, tabPanel, chartView);
             mainPresenter.go(container);

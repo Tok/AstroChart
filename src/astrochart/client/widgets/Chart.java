@@ -221,16 +221,19 @@ public class Chart extends Composite {
 		}
 		TextPosition tp = null;
 		if (isType != null) {
-			ctx.setLineWidth(2.0D);
-			drawLine(xFirst, yFirst, xSecond, ySecond);
 			addAspect(isType);
 			if (aspectCheckBoxes.get(isType).getValue()) {
+				ctx.setLineWidth(2.0D); //Labeled aspects with type
+				drawLine(xFirst, yFirst, xSecond, ySecond);
 				final double x = ((xFirst + xSecond) / 2D) -6D;
 				final double y = ((yFirst + ySecond) / 2D) +6D;
 				tp = new TextPosition(String.valueOf(isType.getUnicode()), x, y);
+			} else {
+				ctx.setLineWidth(1.0D); //Unlabeled Aspects with type
+				drawLine(xFirst, yFirst, xSecond, ySecond);				
 			}
 		} else {
-			ctx.setLineWidth(0.2D);
+			ctx.setLineWidth(0.2D); //Apsects without type
 			drawLine(xFirst, yFirst, xSecond, ySecond);			
 		}
 		

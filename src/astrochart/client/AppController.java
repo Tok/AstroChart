@@ -4,11 +4,11 @@ import astrochart.client.event.CancelledEvent;
 import astrochart.client.event.CancelledEventHandler;
 import astrochart.client.presenter.AdminPresenter;
 import astrochart.client.presenter.InfoPresenter;
-import astrochart.client.presenter.NowPresenter;
+import astrochart.client.presenter.ChartPresenter;
 import astrochart.client.presenter.Presenter;
 import astrochart.client.view.AdminView;
 import astrochart.client.view.InfoView;
-import astrochart.client.view.NowView;
+import astrochart.client.view.ChartView;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -23,11 +23,11 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
     private HasWidgets container;
 
     private final TabPanel tabPanel = new TabPanel();
-    private final NowView nowView = new NowView(eventBus);
+    private final ChartView chartView = new ChartView(eventBus);
     private final InfoView infoView = new InfoView();
     private final AdminView adminView = new AdminView();
 
-    private NowPresenter mainPresenter;
+    private ChartPresenter mainPresenter;
     private Presenter infoPresenter;
     private Presenter adminPresenter;
 
@@ -55,7 +55,7 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
         });
 
         tabPanel.setAnimationEnabled(true); //XXX
-        tabPanel.add(nowView.asWidget(), "Tropical Now");
+        tabPanel.add(chartView.asWidget(), "Tropical Now");
         tabPanel.add(infoView.asWidget(), "Info");
     }
 
@@ -88,7 +88,7 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
         final String token = event.getValue();
         if (token.startsWith("now/")) {
         	tabPanel.selectTab(0);
-            mainPresenter = new NowPresenter(eventBus, tabPanel, nowView);
+            mainPresenter = new ChartPresenter(eventBus, tabPanel, chartView);
             mainPresenter.go(container);
         } else if (token.startsWith("info/")) {
             tabPanel.selectTab(1);

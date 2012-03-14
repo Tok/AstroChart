@@ -2,11 +2,11 @@ package astrochart.client.view;
 
 import java.util.HashMap;
 import java.util.Map;
-import astrochart.client.presenter.NowPresenter;
+import astrochart.client.presenter.ChartPresenter;
+import astrochart.client.widgets.Chart;
 import astrochart.client.widgets.TimeEntry;
 import astrochart.shared.enums.AspectType;
 import astrochart.shared.enums.Planet;
-import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class NowView extends Composite implements NowPresenter.Display {
+public class ChartView extends Composite implements ChartPresenter.Display {
     private final FlexTable contentTable = new FlexTable();
     private final Button updatePositionsButton = new Button("Update Positions");
     private final Button regenerateChartButton = new Button("Regenerate Chart");
@@ -39,10 +39,7 @@ public class NowView extends Composite implements NowPresenter.Display {
     private final Label sunsetLabel = new Label();
     private final Label sunPositionLabel = new Label();
     private final Label ascendentLabel = new Label();
-
-    private final Canvas chart = Canvas.createIfSupported();
     private final Label statusLabel = new Label();
-    
     private final Map<Planet, CheckBox> planetCheckBoxes = new HashMap<Planet, CheckBox>();
     private final Map<Planet, Label> planetLabels = new HashMap<Planet, Label>();
     private final Button selectAllPlanetsButton = new Button("Select All");
@@ -54,10 +51,11 @@ public class NowView extends Composite implements NowPresenter.Display {
     private final Button unselectAllAspectsButton = new Button("Unselect All");
     private final Button resetOrbsButton = new Button("Reset Orbs");
     
-    private TimeEntry timeEntry;
+    private final TimeEntry timeEntry;
+    private final Chart chart;
     private int row;
     
-    public NowView(final HandlerManager eventBus) {
+    public ChartView(final HandlerManager eventBus) {
         final DecoratorPanel contentTableDecorator = new DecoratorPanel();
         contentTableDecorator.setWidth("1010px");
         initWidget(contentTableDecorator);
@@ -103,13 +101,9 @@ public class NowView extends Composite implements NowPresenter.Display {
         timeEntry = new TimeEntry(eventBus);
         final VerticalPanel chartPanel = new VerticalPanel();
         chartPanel.add(timeEntry);
-        if (chart != null) {
-       	  	chart.setCoordinateSpaceHeight(600);
-       	  	chart.setCoordinateSpaceWidth(600);
-       	  	chartPanel.add(chart);
-       	} else {
-       	  	chartPanel.add(new Label("Fail: Your browser doesn't support HTML5 Canvas."));
-       	}
+        chart = new Chart(eventBus, planetCheckBoxes, aspectListboxes, aspectCheckBoxes, aspectLabels);
+        chartPanel.add(chart);
+
       	contentTable.setWidget(row, 0, chartPanel);
         
     	contentTable.setText(row, 1, "UTC Time: ");
@@ -264,7 +258,7 @@ public class NowView extends Composite implements NowPresenter.Display {
     }
     
     @Override
-    public final Canvas getChart() {
+    public final Chart getChart() {
         return chart;
     }
     
@@ -299,13 +293,6 @@ public class NowView extends Composite implements NowPresenter.Display {
     }
 
     @Override
-    public final double getAspectOrb(final AspectType type) {
-    	final ListBox box = aspectListboxes.get(type);
-        final int selection =  box.getSelectedIndex();
-        return Double.valueOf(box.getItemText(selection));
-    }
-    
-    @Override
     public final Label getAspectLabel(final AspectType type) {
         return aspectLabels.get(type);
     }
@@ -316,15 +303,7 @@ public class NowView extends Composite implements NowPresenter.Display {
     		getAspectLabel(aspectType).setText("0");
     	}
     }
-    
-    @Override
-    public final void addAspect(final AspectType aspectType) {
-    	final Label label = getAspectLabel(aspectType);
-    	int counter = Integer.parseInt(label.getText());
-    	counter++;
-    	label.setText(String.valueOf(counter));
-    }
-    
+        
     @Override
     public final Button resetOrbsButton() {
         return resetOrbsButton;

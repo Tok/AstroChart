@@ -16,6 +16,7 @@ public class AdminServiceImpl extends RemoteServiceServlet implements AdminServi
     
     @Override
     public final void saveEpoch(final Epoch epoch) {
+    	System.out.println(epoch);
         final PersistenceManager pm = PMF.getPersistenceManager();
         try {
             pm.makePersistent(epoch);

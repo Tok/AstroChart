@@ -19,6 +19,7 @@ import astrochart.shared.data.Epoch;
 import astrochart.shared.data.GeocodeData;
 import astrochart.shared.enums.AspectType;
 import astrochart.shared.enums.Planet;
+import astrochart.shared.exceptions.EpochNotFoundException;
 import astrochart.shared.wrappers.AscendentAndOffset;
 import astrochart.shared.wrappers.BodyPosition;
 import astrochart.shared.wrappers.RiseAndSet;
@@ -294,23 +295,27 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
 				dateTimeUtil.formatLocalDate(sidDate) + display.getTimeEntry().getClientTimezone());
 		display.getUtcSidLabel().setText(dateTimeUtil.formatDateAsUtc(utcSidDate));
 		
-		epochService.readEpoch(utcSidDate, new AsyncCallback<Epoch>() {
-			@Override
-			public void onSuccess(Epoch result) {
-				epoch = result;
-				for (Planet planet : Planet.values()) {
-					final Label label = display.getPlanetLabel(planet);
-					label.setText(result.getPositionDegreeString(planet));
-					label.setTitle(result.getPositionString(planet));
-				}
-				display.getStatusLabel().setText("Positions updated."); 
-				processCustomGeocode(false);
-			}
-			@Override
-			public void onFailure(Throwable caught) {
-				display.getStatusLabel().setText("Fail reading epoch: " + caught.getMessage()); 
-			}
-		});
+        epochService.readEpoch(utcSidDate, new AsyncCallback<Epoch>() {
+        	@Override
+        	public void onSuccess(Epoch result) {
+        		epoch = result;
+        		for (Planet planet : Planet.values()) {
+        			final Label label = display.getPlanetLabel(planet);
+        			label.setText(result.getPositionDegreeString(planet));
+        			label.setTitle(result.getPositionString(planet));
+        		}
+        		display.getStatusLabel().setText("Positions updated."); 
+        		processCustomGeocode(false);
+        	}
+        	@Override
+        	public void onFailure(Throwable caught) {
+        		if (caught instanceof EpochNotFoundException) {
+        			display.getStatusLabel().setText("Epoch not found. Please try another date."); 
+        		} else {
+        			display.getStatusLabel().setText("Fail reading epoch: " + caught.getMessage()); 
+        		}
+        	}
+        });
     }
     
     /**

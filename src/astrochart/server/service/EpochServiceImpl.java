@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 import astrochart.client.service.EpochService;
 import astrochart.shared.data.Epoch;
 import astrochart.shared.enums.Planet;
+import astrochart.shared.exceptions.EpochNotFoundException;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -26,7 +27,7 @@ public class EpochServiceImpl extends RemoteServiceServlet implements EpochServi
     private final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     
 	@Override
-    public final Epoch readEpoch(final Date date) {
+    public final Epoch readEpoch(final Date date) throws EpochNotFoundException {
 //		final long low = date.getTime() - ((MILLISECONDS_PER_DAY * 3) / 2);
 //		final long high = date.getTime() + ((MILLISECONDS_PER_DAY * 3) / 2);
 //		final long low = date.getTime() - MILLISECONDS_PER_DAY;
@@ -44,10 +45,14 @@ public class EpochServiceImpl extends RemoteServiceServlet implements EpochServi
         q.addSort("sidDate", SortDirection.ASCENDING);
         final PreparedQuery pq = datastore.prepare(q);
 
+
         final List<Entity> entities = pq.asList(FetchOptions.Builder.withLimit(2));
+        if (entities.size() < 2) {
+        	throw new EpochNotFoundException();
+        }
         final Entity firstEntity = entities.get(0);
         final Entity secondEntity = entities.get(1);
-            
+        
         first.setSidDate((Date) firstEntity.getProperty("sidDate"));
         second.setSidDate((Date) secondEntity.getProperty("sidDate"));
         first.setDay((String) firstEntity.getProperty("day"));

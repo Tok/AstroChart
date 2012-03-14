@@ -18,8 +18,8 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 
 public class TimeEntry extends Composite {
-	@SuppressWarnings("unused")
     private final HandlerManager eventBus;
+    private final DateTimeUtil dateTimeUtil;
 	private final FlexTable flex = new FlexTable();
     private final TextBox yearTextBox = new TextBox();
     private final ListBox monthListBox = new ListBox();
@@ -34,8 +34,9 @@ public class TimeEntry extends Composite {
     private int clientOffset;
     private Date localDate; //local date of the client, not the ListBox
     
-	public TimeEntry(final HandlerManager eventBus) {
+	public TimeEntry(final HandlerManager eventBus, final DateTimeUtil dateTimeUtil) {
 		this.eventBus = eventBus;
+		this.dateTimeUtil = dateTimeUtil;
 		localDate = new Date(); 
 		
 		flex.setText(0, 0, "Year");
@@ -47,61 +48,67 @@ public class TimeEntry extends Composite {
 		flex.setText(0, 6, "Timezone");
 		flex.setText(0, 7, "Action");
 
-		yearTextBox.setText(String.valueOf(getYear()));
 		yearTextBox.setWidth("50px");
 		flex.setWidget(1, 0, yearTextBox);
-		int monthListIndex = 0;
 		for (final Month month : Month.values()) {
 			monthListBox.addItem(month.name());
-			if (getMonth() == month.getNumber()) {
-				monthListBox.setSelectedIndex(monthListIndex);
-			}
-			monthListIndex++;
 		}
 		flex.setWidget(1, 1, monthListBox);
 		dayTextBox.setWidth("50px");
-		dayTextBox.setText(String.valueOf(getDay()));
 		flex.setWidget(1, 2, dayTextBox);
 		
 		hoursTextBox.setWidth("50px");
-		hoursTextBox.setText(String.valueOf(getHours()));
 		flex.setWidget(1, 3, hoursTextBox);
 		minutesTextBox.setWidth("50px");
-		minutesTextBox.setText(String.valueOf(getMinutes()));
 		flex.setWidget(1, 4, minutesTextBox);
 		secondsTextBox.setWidth("50px");
-		secondsTextBox.setText(String.valueOf(getSeconds()));
 		flex.setWidget(1, 5, secondsTextBox);
-		double timeZoneOffset = DOM.getElementById("timeZone").getPropertyDouble("value");
-		int zoneListIndex = 0;
 		for (final TimeZone zone : TimeZone.values()) {
 			timeZoneListBox.addItem(zone.getName());
-			if (Double.valueOf(timeZoneOffset * 60).intValue() == zone.getUtcOffsetMinutes()) {
-				clientOffset = Double.valueOf(timeZoneOffset * 60).intValue();
-				timeZoneListBox.setSelectedIndex(zoneListIndex);
-			}
-			zoneListIndex++;
 		}
 		flex.setWidget(1, 6, timeZoneListBox);
 		updateButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
 				updateDate();
-				eventBus.fireEvent(new DateUpdatedEvent());
 			}
 		});
 		flex.setWidget(1, 7, updateButton);
 
-		final TimeZone timeZone = TimeZone.getTimeZoneForName(timeZoneListBox.getValue(timeZoneListBox.getSelectedIndex()));
-		statusLabel.setText(dateTimeFormat.format(localDate) + " " + timeZone.getName());
 		flex.setWidget(2, 0, statusLabel);
 		flex.getFlexCellFormatter().setColSpan(2, 0, 8);
 		
+		updateValues();
+		updateDate();
 		
 		initWidget(flex);
 		setStyleName("time-entry");
 	}
 
+	private final void updateValues() {
+		yearTextBox.setText(String.valueOf(getYear()));
+		int monthListIndex = 0;
+		for (final Month month : Month.values()) {
+			if (getMonth() == month.getNumber()) {
+				monthListBox.setSelectedIndex(monthListIndex);
+			}
+			monthListIndex++;
+		}
+		dayTextBox.setText(String.valueOf(getDay()));
+		hoursTextBox.setText(String.valueOf(getHours()));
+		minutesTextBox.setText(String.valueOf(getMinutes()));
+		secondsTextBox.setText(String.valueOf(getSeconds()));
+		double timeZoneOffset = DOM.getElementById("timeZone").getPropertyDouble("value");
+		int zoneListIndex = 0;
+		for (final TimeZone zone : TimeZone.values()) {
+			if (Double.valueOf(timeZoneOffset * 60).intValue() == zone.getUtcOffsetMinutes()) {
+				clientOffset = Double.valueOf(timeZoneOffset * 60).intValue();
+				timeZoneListBox.setSelectedIndex(zoneListIndex);
+			}
+			zoneListIndex++;
+		}
+	}
+	
 	private final int getYear() {
 		return Integer.valueOf(dateTimeFormat.format(localDate).substring(0,4));
 	}
@@ -170,6 +177,7 @@ public class TimeEntry extends Composite {
 				status.append(" UTC ");
 			}
 			statusLabel.setText(status.toString());
+			eventBus.fireEvent(new DateUpdatedEvent(dateTimeUtil.getUtcDate(localDate)));
 		} catch (IllegalArgumentException iae) {
 			statusLabel.setText(iae.getMessage());
 		}
@@ -230,11 +238,25 @@ public class TimeEntry extends Composite {
 		}
 	}
 
-	public Date getLocalDate() {
+	public final Date getLocalDate() {
 	    return localDate;
     }
 	
-	public String getClientTimezone() {
+	public final String getClientTimezone() {
 	    return " UTC+" + (clientOffset / 60);
     }
+	
+	public final void updateDate(final Date newUtcDate) {
+		localDate = newUtcDate;
+		updateValues();
+		int zoneListIndex = 0;
+		for (final TimeZone zone : TimeZone.values()) {
+			if (zone.getUtcOffsetMinutes() == 0) {
+				timeZoneListBox.setSelectedIndex(zoneListIndex);
+				break;
+			}
+			zoneListIndex++;
+		}
+		updateDate();
+	}
 }

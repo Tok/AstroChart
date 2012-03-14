@@ -59,7 +59,8 @@ public class Chart extends Composite {
 		setStyleName("chart");
 	}
 
-    public final void generateEmptyChart() {
+    @SuppressWarnings("unused")
+    private final void generateEmptyChart() {
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 			@Override
 			public void execute() {

@@ -3,6 +3,7 @@ package astrochart.client.view;
 import java.util.HashMap;
 import java.util.Map;
 import astrochart.client.presenter.ChartPresenter;
+import astrochart.client.util.DateTimeUtil;
 import astrochart.client.widgets.Chart;
 import astrochart.client.widgets.TimeEntry;
 import astrochart.shared.enums.AspectType;
@@ -55,7 +56,7 @@ public class ChartView extends Composite implements ChartPresenter.Display {
     private final Chart chart;
     private int row;
     
-    public ChartView(final HandlerManager eventBus) {
+    public ChartView(final HandlerManager eventBus, final DateTimeUtil dateTimeUtil) {
         final DecoratorPanel contentTableDecorator = new DecoratorPanel();
         contentTableDecorator.setWidth("1010px");
         initWidget(contentTableDecorator);
@@ -98,7 +99,7 @@ public class ChartView extends Composite implements ChartPresenter.Display {
         contentTable.getFlexCellFormatter().setColSpan(row, 0, 3);
         row++;
 
-        timeEntry = new TimeEntry(eventBus);
+        timeEntry = new TimeEntry(eventBus, dateTimeUtil);
         final VerticalPanel chartPanel = new VerticalPanel();
         chartPanel.add(timeEntry);
         chart = new Chart(eventBus, planetCheckBoxes, aspectListboxes, aspectCheckBoxes, aspectLabels);

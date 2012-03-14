@@ -27,6 +27,15 @@ public class DateTimeUtil {
 	public final Date getUtcDate(final Date localDate) {
 		return dateTimeFormat.parse(formatDateAsUtc(localDate));
 	}
+
+	public final Date getUtcDateFromUtcString(final String utcDateString) {
+		return dateTimeFormat.parse(utcDateString);
+	}
+	
+	public Date getLocalDateFromUtc(Date providedUtcDate) {
+	    return dateTimeFormat.parse(dateTimeFormat.format(providedUtcDate));
+    }
+	
 	
 	/**
 	 * http://en.wikipedia.org/wiki/Julian_day#Julian_Date
@@ -262,5 +271,5 @@ public class DateTimeUtil {
 			return false;
 		}
 	}
-	
+
 }

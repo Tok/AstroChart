@@ -1,11 +1,13 @@
 package astrochart.client;
 
+import java.util.Date;
 import astrochart.client.event.CancelledEvent;
 import astrochart.client.event.CancelledEventHandler;
 import astrochart.client.presenter.AdminPresenter;
 import astrochart.client.presenter.InfoPresenter;
 import astrochart.client.presenter.ChartPresenter;
 import astrochart.client.presenter.Presenter;
+import astrochart.client.util.DateTimeUtil;
 import astrochart.client.view.AdminView;
 import astrochart.client.view.InfoView;
 import astrochart.client.view.ChartView;
@@ -20,10 +22,11 @@ import com.google.gwt.user.client.ui.TabPanel;
 
 public class AppController implements Presenter, ValueChangeHandler<String> {
     private final HandlerManager eventBus = new HandlerManager(null);
+	private final DateTimeUtil dateTimeUtil = new DateTimeUtil();
     private HasWidgets container;
 
     private final TabPanel tabPanel = new TabPanel();
-    private final ChartView chartView = new ChartView(eventBus);
+    private final ChartView chartView = new ChartView(eventBus, dateTimeUtil);
     private final InfoView infoView = new InfoView();
     private final AdminView adminView = new AdminView();
 
@@ -87,8 +90,18 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
     public final void onValueChange(final ValueChangeEvent<String> event) {
         final String token = event.getValue();
         if (token.startsWith("chart/")) {
+        	Date providedUtcDate = null;
+			String dateString = "";
+			if (token.split("/").length > 1) {
+				dateString = token.split("/")[1];
+				try {
+					providedUtcDate = dateTimeUtil.getUtcDateFromUtcString(dateString);
+				} catch (IllegalArgumentException iae) {
+					//ignore
+				}
+			}
         	tabPanel.selectTab(0);
-            mainPresenter = new ChartPresenter(eventBus, tabPanel, chartView);
+            mainPresenter = new ChartPresenter(eventBus, dateTimeUtil, tabPanel, chartView, providedUtcDate);
             mainPresenter.go(container);
         } else if (token.startsWith("info/")) {
             tabPanel.selectTab(1);

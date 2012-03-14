@@ -55,14 +55,14 @@ import com.google.gwt.user.client.ui.Widget;
 public class ChartPresenter extends AbstractTabPresenter implements Presenter {
 	private final EpochServiceAsync epochService = GWT.create(EpochService.class);
 	private final GeocodeServiceAsync geocodeService = GWT.create(GeocodeService.class);
-	private final DateTimeUtil dateTimeUtil = new DateTimeUtil();
     private final AstrologyUtil astroUtil = new AstrologyUtil();
+	private final DateTimeUtil dateTimeUtil;
 	
     private final Display display;
-
+    private Date providedUtcDate;
 	private Epoch epoch;
-	private Date localNow;
-	private Date utcNow;
+	private Date localDate;
+	private Date utcDate;
 	private boolean disableUpdate = false;
 	
 	public interface Display {
@@ -99,8 +99,11 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
 		TimeEntry getTimeEntry();
     }
 
-    public ChartPresenter(final HandlerManager eventBus, final TabPanel tabPanel, final Display view) {
+    public ChartPresenter(final HandlerManager eventBus, final DateTimeUtil dateTimeUtil, 
+    		final TabPanel tabPanel, final Display view, final Date providedUtcDate) {
         super(eventBus, tabPanel);
+        this.dateTimeUtil = dateTimeUtil;
+        this.providedUtcDate = providedUtcDate;
         this.display = view;
     }
 
@@ -109,7 +112,9 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
     			new DateUpdatedEventHandler() {			
 					@Override
 					public void onDateUpdated(DateUpdatedEvent event) {
+						utcDate = event.getUtcDate();
 						updateEpoch();
+//						History.newItem("chart/" + dateTimeUtil.formatLocalDate(utcDate));
 					}
 		});
     	getEventBus().addHandler(ResetAspectsEvent.TYPE, 
@@ -264,8 +269,13 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
         container.clear();
         container.add(super.getTabPanel());
         
-        updateEpoch();
-        
+    	if (providedUtcDate != null) {
+    		//fill time entry with provided date (calls updateEpoch)
+    		display.getTimeEntry().updateDate(providedUtcDate);
+    	} else {
+            updateEpoch();
+    	}
+    	        
 		//XXX Experimental HTML5 Geolocation
 		//tryToGetGeolocationFromBrowser();
 		
@@ -279,18 +289,18 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
     private final void updateEpoch() {
     	display.getStatusLabel().setText("Updating positions.");
     	
-        localNow = display.getTimeEntry().getLocalDate();
+		localDate = display.getTimeEntry().getLocalDate();
 		display.getUtcLabel().setTitle("As Time in your local timezone: \n" + 
-				dateTimeUtil.formatLocalDate(localNow) + display.getTimeEntry().getClientTimezone());
-		display.getUtcLabel().setText(dateTimeUtil.formatDateAsUtc(localNow));
+				dateTimeUtil.formatLocalDate(localDate) + display.getTimeEntry().getClientTimezone());
+		display.getUtcLabel().setText(dateTimeUtil.formatDateAsUtc(localDate));
 
-		utcNow = dateTimeUtil.getUtcDate(localNow);
+		utcDate = dateTimeUtil.getUtcDate(localDate);
 		display.getUtcJdLabel().setTitle("As JD Time in your local timezone: \n" + 
-				dateTimeUtil.getFormattedJdTimeDate(localNow) + display.getTimeEntry().getClientTimezone());
-		display.getUtcJdLabel().setText(dateTimeUtil.getFormattedJdTimeDate(utcNow));
+				dateTimeUtil.getFormattedJdTimeDate(localDate) + display.getTimeEntry().getClientTimezone());
+		display.getUtcJdLabel().setText(dateTimeUtil.getFormattedJdTimeDate(utcDate));
 
-		final Date sidDate = dateTimeUtil.getLocalSidTimeDate(localNow); //also known as LST
-		final Date utcSidDate = dateTimeUtil.getLocalSidTimeDate(localNow); //also known as GMST
+		final Date sidDate = dateTimeUtil.getLocalSidTimeDate(localDate); //also known as LST
+		final Date utcSidDate = dateTimeUtil.getLocalSidTimeDate(localDate); //also known as GMST
 		display.getUtcSidLabel().setTitle("As Sidereal Time in your local timezone: \n" + 
 				dateTimeUtil.formatLocalDate(sidDate) + display.getTimeEntry().getClientTimezone());
 		display.getUtcSidLabel().setText(dateTimeUtil.formatDateAsUtc(utcSidDate));
@@ -397,8 +407,7 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
 	
     private final void processGeocodeData(final GeocodeData geocode) {
     	if (geocode == null || (geocode.getCityName().equals("") && geocode.getLatitude() == 0.0D && geocode.getLongitude() == 0.0D)) {
-    		display.getStatusLabel().setText("Generating empty chart...");
-    		display.getChart().generateEmptyChart();    		
+    		//ignore
     	} else {
     		display.getLocationTextBox().setText(geocode.getCityName());
 		
@@ -406,13 +415,13 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
     		display.getLatitudeTextBox().setText(nf.format(geocode.getLatitude()));
     		display.getLongitudeTextBox().setText(nf.format(geocode.getLongitude()));
 
-    		final RiseAndSet ras = astroUtil.calculateSunRiseAndSet(localNow, geocode.getLatitude(), geocode.getLongitude());
+    		final RiseAndSet ras = astroUtil.calculateSunRiseAndSet(localDate, geocode.getLatitude(), geocode.getLongitude());
     		display.getSunriseLabel().setText(dateTimeUtil.formatLocalDate(ras.getRise()));
     		display.getSunsetLabel().setText(dateTimeUtil.formatLocalDate(ras.getSet()));
-    		final BodyPosition position = astroUtil.calculateSunPosition(utcNow, geocode.getLatitude(), geocode.getLongitude());
+    		final BodyPosition position = astroUtil.calculateSunPosition(utcDate, geocode.getLatitude(), geocode.getLongitude());
     		display.getSunPositionLabel().setText(position.toString());
 		
-    		final AscendentAndOffset ascendent = astroUtil.determineAscendent(utcNow, geocode.getLongitude(), geocode.getLatitude());
+    		final AscendentAndOffset ascendent = astroUtil.determineAscendent(utcDate, geocode.getLongitude(), geocode.getLatitude());
     		display.getAscendentLabel().setText(ascendent.toString());
 
     		display.getStatusLabel().setText("Generating chart...");

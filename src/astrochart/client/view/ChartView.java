@@ -7,6 +7,7 @@ import astrochart.client.util.DateTimeUtil;
 import astrochart.client.widgets.Chart;
 import astrochart.client.widgets.TimeEntry;
 import astrochart.shared.enums.AspectType;
+import astrochart.shared.enums.HouseType;
 import astrochart.shared.enums.Planet;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.ui.Button;
@@ -36,6 +37,7 @@ public class ChartView extends Composite implements ChartPresenter.Display {
     private final Label utcLabel = new Label();
     private final Label utcJdLabel = new Label();
     private final Label utcSidLabel = new Label();
+    private final ListBox housesListBox = new ListBox(); 
     private final Label sunriseLabel = new Label();
     private final Label sunsetLabel = new Label();
     private final Label sunPositionLabel = new Label();
@@ -140,7 +142,19 @@ public class ChartView extends Composite implements ChartPresenter.Display {
     	contentTable.getCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_TOP);        
     	contentTable.getFlexCellFormatter().setColSpan(row, 0, 2);    
         row++;
+
+        contentTable.setWidget(row, 0, new HTML("&nbsp;"));
+        row++;
         
+        for (final HouseType houseType : HouseType.values()) {
+        	housesListBox.addItem(houseType.getName());
+        }
+    	contentTable.setText(row, 0, "Houses System: ");
+    	contentTable.getCellFormatter().setVerticalAlignment(row, 0, HasVerticalAlignment.ALIGN_MIDDLE);
+    	contentTable.setWidget(row, 1, housesListBox);
+    	contentTable.getCellFormatter().setVerticalAlignment(row, 1, HasVerticalAlignment.ALIGN_MIDDLE);
+    	row++;
+    	
         contentTable.setWidget(row, 0, new HTML("&nbsp;"));
         row++;
         
@@ -282,7 +296,12 @@ public class ChartView extends Composite implements ChartPresenter.Display {
     public final Button getUnselectAllPlanetsButton() {
         return unselectAllPlanetsButton;
     }
-
+    
+    @Override
+    public final ListBox getHousesListBox() {
+        return housesListBox;
+    }
+    
     @Override
     public final CheckBox getAspectCheckBox(final AspectType type) {
         return aspectCheckBoxes.get(type);

@@ -18,6 +18,7 @@ import astrochart.client.widgets.TimeEntry;
 import astrochart.shared.data.Epoch;
 import astrochart.shared.data.GeocodeData;
 import astrochart.shared.enums.AspectType;
+import astrochart.shared.enums.HouseType;
 import astrochart.shared.enums.Planet;
 import astrochart.shared.exceptions.EpochNotFoundException;
 import astrochart.shared.wrappers.AscendentAndOffset;
@@ -77,6 +78,7 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
 		Label getPlanetLabel(Planet planet);
 		Button getSelectAllPlanetsButton();
 		Button getUnselectAllPlanetsButton();
+		ListBox getHousesListBox();
 		CheckBox getAspectCheckBox(AspectType type);
 		ListBox getAspectListBox(AspectType type);
 		Label getAspectLabel(AspectType type);
@@ -173,6 +175,14 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
 				regenerateChart();
 			}
 		});
+    	this.display.getHousesListBox().addChangeHandler(new ChangeHandler() {
+			@Override
+            public void onChange(ChangeEvent event) {
+				final String houseSystemName = display.getHousesListBox().getItemText(display.getHousesListBox().getSelectedIndex());
+				final HouseType type = HouseType.getTypeForName(houseSystemName);
+	            display.getChart().changeHouseSystem(type);
+            }
+    	});
     	for (final AspectType type : AspectType.values()) {
     		this.display.getAspectCheckBox(type).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
 				@Override
@@ -428,7 +438,9 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
     		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
     			@Override
     			public void execute() {
-    				display.getChart().generateChart(ascendent, epoch);
+    				final String houseSystemName = display.getHousesListBox().getItemText(display.getHousesListBox().getSelectedIndex());
+    				final HouseType type = HouseType.getTypeForName(houseSystemName);
+    				display.getChart().generateChart(ascendent, epoch, type);
     			}
     		});
     	}

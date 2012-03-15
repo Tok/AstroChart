@@ -10,6 +10,7 @@ import astrochart.shared.data.Epoch;
 import astrochart.shared.enums.AspectType;
 import astrochart.shared.enums.ChartColor;
 import astrochart.shared.enums.ChartProportions;
+import astrochart.shared.enums.HouseType;
 import astrochart.shared.enums.Planet;
 import astrochart.shared.enums.ZodiacSign;
 import astrochart.shared.wrappers.AscendentAndOffset;
@@ -35,7 +36,10 @@ public class Chart extends Composite {
 	
 	private final VerticalPanel chartPanel = new VerticalPanel();
 	private final Canvas canvas = Canvas.createIfSupported();
+	private AscendentAndOffset ascendent;
 	private Epoch epoch;
+	@SuppressWarnings("unused")
+    private HouseType houseType;
 	private final Map<String, TextPosition> aspects = new HashMap<String, TextPosition>();
 
 	
@@ -64,13 +68,15 @@ public class Chart extends Composite {
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 			@Override
 			public void execute() {
-				generateChart(new AscendentAndOffset(ZodiacSign.Aries, 0.0D), null);
+				generateChart(new AscendentAndOffset(ZodiacSign.Aries, 0.0D), null, HouseType.Equal);
 			}
 		});		
     }
     
-    public final void generateChart(final AscendentAndOffset ascendent, final Epoch epoch) {
+    public final void generateChart(final AscendentAndOffset ascendent, final Epoch epoch, final HouseType houseType) {
+    	this.ascendent = ascendent;
     	this.epoch = epoch;
+    	this.houseType = houseType;
 		final Context2d ctx = canvas.getContext2d();
 		ctx.setStrokeStyle(CssColor.make(ChartColor.Black.getHex()));
 		ctx.setFillStyle(CssColor.make(ChartColor.White.getHex()));
@@ -127,14 +133,19 @@ public class Chart extends Composite {
 
 		//draw houses
 		int house = 1;
-		for (final ZodiacSign sign : ZodiacSign.values()) {
-			final double angle = keepInRange(sign.getEclipticLongitude() + 90D); 
-			ctx.setLineWidth(0.10);
-			drawExcentricLine(ctx, angle, ChartProportions.Inner, ChartProportions.InnerMark); 
-			drawExcentricLine(ctx, angle, ChartProportions.OuterEclyptic, ChartProportions.Outer); 
-			ctx.setLineWidth(0.8);
-			writeExcentricInfo(ctx, 8, String.valueOf(house), angle + 15D, ChartProportions.HouseNumber);
-			house++;
+		if (houseType.equals(HouseType.Equal) || houseType.equals(HouseType.WholeSigns)) {
+			for (final ZodiacSign sign : ZodiacSign.values()) {
+				double angle = keepInRange(sign.getEclipticLongitude() + 90D); 
+				if (houseType.equals(HouseType.WholeSigns)) {
+					angle = angle - (offset % 30D);
+				}
+				ctx.setLineWidth(0.10);
+				drawExcentricLine(ctx, angle, ChartProportions.Inner, ChartProportions.InnerMark); 
+				drawExcentricLine(ctx, angle, ChartProportions.OuterEclyptic, ChartProportions.Outer); 
+				ctx.setLineWidth(0.8);
+				writeExcentricInfo(ctx, 8, String.valueOf(house), angle + 15D, ChartProportions.HouseNumber);
+				house++;
+			}
 		}
 		
 		if (epoch != null) {
@@ -361,5 +372,10 @@ public class Chart extends Composite {
     	int counter = Integer.parseInt(label.getText());
     	counter++;
     	label.setText(String.valueOf(counter));
+    }
+
+	public void changeHouseSystem(final HouseType houseType) {
+    	this.houseType = houseType;
+    	generateChart(ascendent, epoch, houseType);
     }
 }

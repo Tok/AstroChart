@@ -2,7 +2,7 @@ package astrochart.shared.enums;
 
 public enum AspectType {
 	Conjunction('\u260C',   0D, 7D, new double[]{ 1D, 2D, 3D, 4D, 5D, 6D, 7D, 8D, 9D, 10D }),
-	Sextile(    '\u002A',  60D, 5D, new double[]{ 1D, 2D, 3D, 4D, 5D, 6D, 7D, 8D, 9D, 10D }), //26B9
+	Sextile(    '\u26B9',  60D, 5D, new double[]{ 1D, 2D, 3D, 4D, 5D, 6D, 7D, 8D, 9D, 10D }), //26B9
 	Quintile(   '\u0051',  72D, 5D, new double[]{ 1D, 2D, 3D, 4D, 5D, 6D, 7D, 8D, 9D, 10D }),
 	Square(     '\u25A1',  90D, 6D, new double[]{ 1D, 2D, 3D, 4D, 5D, 6D, 7D, 8D, 9D, 10D }),
 	Trine(      '\u25B3', 120D, 5D, new double[]{ 1D, 2D, 3D, 4D, 5D, 6D, 7D, 8D, 9D, 10D }),

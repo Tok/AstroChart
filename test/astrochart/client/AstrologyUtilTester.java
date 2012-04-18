@@ -4,6 +4,7 @@ import java.util.Date;
 import astrochart.client.util.AstrologyUtil;
 import astrochart.client.util.DateTimeUtil;
 import astrochart.shared.enums.ZodiacSign;
+import astrochart.shared.wrappers.AscendentAndOffset;
 import astrochart.shared.wrappers.BodyPosition;
 import astrochart.shared.wrappers.RiseAndSet;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -96,7 +97,7 @@ public class AstrologyUtilTester extends GWTTestCase {
 		final double longitude = 11.6D; //For Munich
 		final BodyPosition position = astrologyUtil.calculateSunPosition(date, latitude, longitude);
 		assertEquals(265.94669695311495D, position.getAzimuth());
-		assertEquals(19.124002077105104D, position.getHeight());
+		assertEquals(19.124002077105114D, position.getHeight());
 	}
 	
 	public final void testSunsetAndSunrise() throws Exception {
@@ -122,7 +123,7 @@ public class AstrologyUtilTester extends GWTTestCase {
 		final double accurateMeanSolarAnomaly = astrologyUtil.calculateAccurateMeanAnomalyRecursive(solarNoonApprox, meanSolarAnomaly, solarNoonTransit);
 		assertEquals(63.66954963102398D, accurateMeanSolarAnomaly);
 		assertEquals(63.66954963102398D, astrologyUtil.getMeanSolarNoonAnomaly());
-		assertEquals(1.7319849964835408D, astrologyUtil.getEquationOfCenter());
+		assertEquals(1.731984996483541D, astrologyUtil.getEquationOfCenter());
 		assertEquals(348.3387346275075D, astrologyUtil.getSolarEclipticalLongitude());
 		assertEquals(2455995.2224062183D, astrologyUtil.getSolarNoonTransit());
 		
@@ -341,20 +342,54 @@ public class AstrologyUtilTester extends GWTTestCase {
 		//2016.07.12 19:13:00 +0000
 		assertEquals(ZodiacSign.Leo,       astrologyUtil.determineAscendent(new Date(1468350780000L), -178D,  -3D).getAscendent()); 
 	}
-
-	/*
-	final Date wat = new Date();
-	wat.setTime(0L);
-	wat.setYear(2016 - 1900);
-	wat.setMonth(7 - 1);
-	wat.setDate(12);
-	wat.setHours(19 + 2);
-	wat.setMinutes(13);
-	wat.setSeconds(0);
-	System.out.println("wat: " + DateTimeFormat.getFormat("yyyy.MM.dd HH:mm:ss Z").format(wat, TimeZone.createTimeZone(0))); 
-	System.out.println("ms: " + wat.getTime()); 
-	*/
 	
+	/**
+	 * http://www.sismoloc.info/mc_east_and_ac_north.html
+	 */
+    @SuppressWarnings("deprecation")
+    public final void testMidheavenCalculation() throws Exception {
+    	final Date date = new Date(1471381800000L); //2016.08.16 21:10:00 +0000
+
+    	@SuppressWarnings("unused")
+        final double latitude = 25D;
+    	final double longitude = 47D;
+    	
+		final double jd = dateTimeUtil.getJdTimeDate(date);
+		assertEquals(2457617.3819444445D, jd);
+		final double cents = dateTimeUtil.getJulianCenturiesSinceJ2000(jd);
+		assertEquals(0.16625275686364124D, cents);
+		final double siderealDegrees = dateTimeUtil.getSiderealDegrees(jd);
+		assertEquals(2192323.187890825D, siderealDegrees);
+		final double localSiderealDegrees = dateTimeUtil.getLocalSiderealDegrees(siderealDegrees, longitude);
+		assertEquals(330.1878908248618D, localSiderealDegrees);
+    	final double midheaven = astrologyUtil.calculateMidheaven(localSiderealDegrees);
+    	assertEquals(328.01438873794672D, midheaven);
+    	final double midheavenWat = astrologyUtil.calculateMc(localSiderealDegrees);
+    	assertEquals(238.01438873794672D, midheavenWat);
+    	
+		/****/
+    	final double armc = 329.8785D;
+    	final double mc = astrologyUtil.calculateMidheaven(armc);
+    	assertEquals(327.69227778042836D, mc);
+    	/****/
+
+    	final Date watDate = new Date(946708034000L); //2000.01.01 06:27:14 +0000
+    	final double watHours = dateTimeUtil.getDecimalHours(watDate);
+    	assertEquals(6.453888888888889D, watHours);
+    	final double watDegrees = dateTimeUtil.convertHoursToDegree(watHours);
+    	assertEquals(96.80833333333334D, watDegrees);
+    	final double watMc = astrologyUtil.calculateMc(watDegrees);
+    	assertEquals(186.25116872097536D, watMc);
+    }
+	
+    @SuppressWarnings("deprecation")
+    public final void testObliqueAscensionCalculation() throws Exception {
+    	final double longitude = 16D;
+		final AscendentAndOffset aao = astrologyUtil.determineAscendent(new Date(437317440000L), longitude, 48D); //1983.11.10 13:04:00 +0000
+    	@SuppressWarnings("unused")
+        final double oa = astrologyUtil.calculateObliqueAscension(aao.getAscendent().getEclipticLongitude() + aao.getOffset(), longitude);
+    }
+
     public final void testTrigonometry() throws Exception {
     	final double x = 0.111D;
     	final double sinX = Math.sin(x);

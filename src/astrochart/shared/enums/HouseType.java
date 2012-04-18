@@ -3,7 +3,7 @@ package astrochart.shared.enums;
 public enum HouseType {
 	Equal("Equal House"), 
 	WholeSigns("Whole Sign");
-//	Placidus, 
+//	Placidus("Placidus"), //http://groups.google.com/group/alt.astrology.moderated/browse_thread/thread/5cf05d6fe8eabb52/17e0c6282d8c7dce?lnk=raot
 //	Campanus, 
 //	Regiomontanus,
 //	KochHousesSystem;

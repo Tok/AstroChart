@@ -59,14 +59,12 @@ public class AstrologyUtil {
 	public final long calculateRashimanaSeconds(final ZodiacSign sign, final double latitude) {
 		final int roundedLat = Double.valueOf(latitude).intValue();
 		final int charakhandas = esl.calculateCharakhandas(sign, roundedLat);
-		
 		long asus = 0L;
 		if (sign.hasLongAscension()) {
 			asus = sign.getRashimanaGroup().getEquatorialAsus() + charakhandas;
 		} else {
 			asus = sign.getRashimanaGroup().getEquatorialAsus() - charakhandas;			
 		}
-		
 		return dateTimeUtil.convertAsusToSiderealSeconds(asus);
 	}
 		
@@ -97,22 +95,16 @@ public class AstrologyUtil {
 	 */
 	public double calculateEclipticalLength(double eclipticLongitude, double meanAnormaly) {
 		final double eccentricity = 0.0167D;
-		double el = eclipticLongitude % 360D;
-		double ma = meanAnormaly % 360D;
-		
-		el = convertDegreeToRadians(el);
-		ma = convertDegreeToRadians(ma);
-
+		double el = Math.toRadians(eclipticLongitude % 360D);
+		double ma = Math.toRadians(meanAnormaly % 360D);
 //		double result = el + 
 //				(1.915D * Math.sin(ma)) + 
-//				(0.020D * Math.sin(2 * ma)); 
-		
+//				(0.020D * Math.sin(2 * ma));
 		final double result = el + 
 			( 	(2 * eccentricity * Math.sin(ma)) + 
 				((5.0D / 4.0D) * Math.pow(eccentricity, 2) * Math.sin(2 * eccentricity)	) 
-			);
-		
-		return convertRadiansToDegree(result);
+			);		
+		return Math.toDegrees(result);
     }
 	
 	public final double calculateEclipticInclination(final double julianDayNumber) {
@@ -126,19 +118,16 @@ public class AstrologyUtil {
 	 * @return
 	 */
 	public final double calculateRightAscension(double eclipticInclination, double eclipticalLength) {
-		eclipticInclination = convertDegreeToRadians(eclipticInclination);
-		eclipticalLength = convertDegreeToRadians(eclipticalLength);
-		
+		eclipticInclination = Math.toRadians(eclipticInclination);
+		eclipticalLength = Math.toRadians(eclipticalLength);
 		final double argument = (Math.cos(eclipticInclination) * Math.sin(eclipticalLength)) / Math.cos(eclipticalLength);
 		double result = Math.atan(argument);
-		
 //		http://www.saao.ac.za/public-info/sun-moon-stars/sun-index/how-to-calculate-altaz/
 //		double result = Math.atan(
 //			Math.tan(eclipticInclination) * 
 //			Math.cos(eclipticalLength)
 //		);
-		
-		result = convertRadiansToDegree(result);
+		result = Math.toDegrees(result);
 		if (result < 0.0D) {
 			result = result + 180.0D;
 		}
@@ -147,12 +136,10 @@ public class AstrologyUtil {
 	
 	
 	public final double calculateDeclination(double eclipticInclination, double eclipticalLength) {
-		eclipticInclination = convertDegreeToRadians(eclipticInclination);
-		eclipticalLength = convertDegreeToRadians(eclipticalLength);
-		
+		eclipticInclination = Math.toRadians(eclipticInclination);
+		eclipticalLength = Math.toRadians(eclipticalLength);
 		final double result = Math.asin(Math.sin(eclipticInclination) * Math.sin(eclipticalLength));
-		
-		return convertRadiansToDegree(result);
+		return Math.toDegrees(result);
 	}
 	
 	public final double calculateVeneralEquinoxDegrees(final double starTimeDegrees, final double longitude) {
@@ -164,16 +151,15 @@ public class AstrologyUtil {
 	}
 
 	public final double calculateAzimuth(double hourAngle, double latitude, double declination) {
-		hourAngle = convertDegreeToRadians(hourAngle);
-		latitude = convertDegreeToRadians(latitude);
-		declination = convertDegreeToRadians(declination);
-		
+		hourAngle = Math.toRadians(hourAngle);
+		latitude = Math.toRadians(latitude);
+		declination = Math.toRadians(declination);
 		final double divisor = 
 			(Math.cos(hourAngle) * Math.sin(latitude)) -
 			(Math.tan(declination) * Math.cos(latitude));
 		double azimuth = 
 			Math.atan(Math.sin(hourAngle) / divisor);
-		azimuth = convertRadiansToDegree(azimuth);
+		azimuth = Math.toDegrees(azimuth);
 		if (divisor < 0D) {
 			azimuth = azimuth + 180D;
 		}
@@ -185,9 +171,9 @@ public class AstrologyUtil {
 	}
 	
 	public final double calculateHeightAngle(double hourAngle, double latitude, double declination) {
-		hourAngle = convertDegreeToRadians(hourAngle);
-		latitude = convertDegreeToRadians(latitude);
-		declination = convertDegreeToRadians(declination);
+		hourAngle = Math.toRadians(hourAngle);
+		latitude = Math.toRadians(latitude);
+		declination = Math.toRadians(declination);
 		final double heightAngle = Math.asin(
 					(Math.cos(declination) *
 					Math.cos(hourAngle) *
@@ -195,18 +181,18 @@ public class AstrologyUtil {
 					(Math.sin(declination) *
 					Math.sin(latitude))
 				);
-		return convertRadiansToDegree(heightAngle);
+		return Math.toDegrees(heightAngle);
 	}
 	
 	/**
-	 * Calculates the mean refraction for an object at the provided angle at 1010 mbar and 10° C.
+	 * Calculates the mean refraction for an object at the provided angle at 1010 mbar and 10ï¿½ C.
 	 * http://de.wikipedia.org/wiki/Sonnenstand#Korrektur_der_H.C3.B6he_wegen_Refraktion
 	 * @param heightAngle
 	 * @return
 	 */
 	private final double calculateRefraction(final double heightAngle) {
 		double term = heightAngle + (10.3D / (heightAngle + 5.11D));
-		term = convertDegreeToRadians(term);
+		term = Math.toRadians(term);
 		return 1.02D / Math.tan(term);
 	}
 	
@@ -257,9 +243,9 @@ public class AstrologyUtil {
 	}
 	
 	public final double calculateEquationOfCenter(final double meanSolarAnomaly) {
-		return	(1.9148D * Math.sin(convertDegreeToRadians(meanSolarAnomaly))) + 
-				(0.0200D * Math.sin(2D * convertDegreeToRadians(meanSolarAnomaly))) +
-				(0.0003D * Math.sin(3D * convertDegreeToRadians(meanSolarAnomaly)));
+		return	(1.9148D * Math.sin(Math.toRadians(meanSolarAnomaly))) + 
+				(0.0200D * Math.sin(2D * Math.toRadians(meanSolarAnomaly))) +
+				(0.0003D * Math.sin(3D * Math.toRadians(meanSolarAnomaly)));
 	}
 	
 	public final double calculateSolarEclipticLongitude(final double meanSolarAnomaly, final double equationOfCenter) {
@@ -268,16 +254,16 @@ public class AstrologyUtil {
 	
 	public final double calculateSolarNoonTransit(final double solarNoonApprox, final double meanSolarAnomaly, final double solarEclipticalLongitude) {
 		return solarNoonApprox +
-				(0.0053D * Math.sin(convertDegreeToRadians(meanSolarAnomaly))) -
-				(0.0069D * Math.sin(convertDegreeToRadians(2D * solarEclipticalLongitude)));
+				(0.0053D * Math.sin(Math.toRadians(meanSolarAnomaly))) -
+				(0.0069D * Math.sin(Math.toRadians(2D * solarEclipticalLongitude)));
 	}
 	
 	public final double calculateSolarDeclination(final double solarEclipticalLongitude) {
 		final double result = Math.asin(
-				Math.sin(convertDegreeToRadians(solarEclipticalLongitude)) *
-				Math.sin(convertDegreeToRadians(23.45D))
+				Math.sin(Math.toRadians(solarEclipticalLongitude)) *
+				Math.sin(Math.toRadians(23.45D))
 		);
-		return convertRadiansToDegree(result);
+		return Math.toDegrees(result);
 	}
 	
 	public final double calculateAccurateMeanAnomalyRecursive(final double solarNoonApprox, final double oldMeanSolarAnomaly, final double solarNoonTransit) {
@@ -299,13 +285,13 @@ public class AstrologyUtil {
 	public final double calculateExactHourAngle(final double latitude, final double solarDeclination) {
 		final double result =	
 			Math.acos(
-				(Math.sin(convertDegreeToRadians(-0.83D)) -
-				(Math.sin(convertDegreeToRadians(latitude)) *
-				Math.sin(convertDegreeToRadians(solarDeclination)))) /
-				(Math.cos(convertDegreeToRadians(latitude)) *
-				Math.cos(convertDegreeToRadians(solarDeclination)))
+				(Math.sin(Math.toRadians(-0.83D)) -
+				(Math.sin(Math.toRadians(latitude)) *
+				Math.sin(Math.toRadians(solarDeclination)))) /
+				(Math.cos(Math.toRadians(latitude)) *
+				Math.cos(Math.toRadians(solarDeclination)))
 			);
-		return convertRadiansToDegree(result);
+		return Math.toDegrees(result);
 	}
 	
 	public final double calculateSolarNoonSecondApprox(final double hourAngle, final double longitude, final double julianCycle) {
@@ -317,8 +303,8 @@ public class AstrologyUtil {
 	
 	public final double calculateSunset(final double solarNoonSecondApprox, final double meanSolarAnomaly, final double solarEclipticalLongitude) {
 		return 	solarNoonSecondApprox +
-				(0.0053D * Math.sin(convertDegreeToRadians(meanSolarAnomaly))) -
-				(0.0069D * Math.sin(convertDegreeToRadians(2D * solarEclipticalLongitude)));
+				(0.0053D * Math.sin(Math.toRadians(meanSolarAnomaly))) -
+				(0.0069D * Math.sin(Math.toRadians(2D * solarEclipticalLongitude)));
 	}
 	
 	public final double calculateSunrise(final double sunset, final double solarNoonTransit) {
@@ -392,14 +378,6 @@ public class AstrologyUtil {
 		return sunRise;	
 	}
 	
-	private final double convertRadiansToDegree(final double radians) {
-		return (radians * 180D) / Math.PI;
-	}
-
-	private final double convertDegreeToRadians(final double degree) {
-		return (degree *  Math.PI) / 180D;
-	}
-
 	/**
 	 * http://de.wikipedia.org/wiki/Aszendent_%28Astrologie%29#Berechnung_des_Aszendenten
 	 * @param localSiderealDegrees
@@ -461,8 +439,64 @@ public class AstrologyUtil {
 		
 		final ZodiacSign sign = returnSign(s1, s2, returnDescendent);
 		final double position = returnPosition(s1, s2, returnDescendent);
+
+//		final double midheaven = calculateMidheaven(localSiderealDegrees);
+//		final double midheaven = calculateMc(localSiderealDegrees);
+		final double midheaven = 0.0D; //FIXME
 		
-		final AscendentAndOffset asc = new AscendentAndOffset(sign, position);
+		final AscendentAndOffset asc = new AscendentAndOffset(sign, position, midheaven);
 		return asc;
 	}
+	
+	/**
+	 * http://www.sismoloc.info/mc_east_and_ac_north.html
+	 * ARMC = ascensio recta medii coeli = right ascension of the local meridian
+	 * @return
+	 */
+	@Deprecated
+	public final double calculateMidheaven(final double armcDegree) {
+		return Math.toDegrees(
+			Math.atan(
+				Math.cos(Math.toRadians(EARTH_INCLINATION_J2000)) *
+				(1D / Math.tan(Math.toRadians(armcDegree))) //=cot
+			) * -1D
+		) + 270D;
+	}
+	
+	/**
+	 * http://groups.google.com/group/alt.astrology.moderated/browse_thread/thread/5cf05d6fe8eabb52/17e0c6282d8c7dce?lnk=raot
+	 * @return
+	 */
+	@Deprecated
+	public final double calculateMc(final double ramc) {
+		return Math.toDegrees(Math.atan(
+				Math.tan(Math.toRadians(ramc)) /
+				Math.cos(Math.toRadians(EARTH_INCLINATION_J2000))
+		)) + 270D;
+	}
+	
+	@Deprecated
+	public final double calculateObliqueAscension(final double ascendentLongitude, final double longitude) {
+		final double rightAscension = 
+			Math.toDegrees(Math.atan(
+				Math.cos(Math.toRadians(EARTH_INCLINATION_J2000)) *
+				Math.tan(Math.toRadians(ascendentLongitude))
+			));
+		final double d =
+			Math.toDegrees(Math.asin(
+				Math.sin(Math.toRadians(EARTH_INCLINATION_J2000)) *
+				Math.sin(Math.toRadians(ascendentLongitude))
+			));
+		
+		System.out.println("rightAscension: " + rightAscension);
+		final double obliqueAscension = 
+				rightAscension -
+				Math.toDegrees(Math.asin(
+					Math.tan(Math.toRadians(d)) *
+					Math.tan(Math.toRadians(longitude))
+				));
+		
+		return obliqueAscension;
+	}
+	
 }

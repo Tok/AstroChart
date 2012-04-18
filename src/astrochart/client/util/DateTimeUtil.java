@@ -10,9 +10,7 @@ public class DateTimeUtil {
 	private static final double JD_2000 = 2451544.5D; //2000-01-01 00:00:00 as JD
 	private static final long MS_PER_DAY = 86400000L;
 	public static final double J_CONSTANT = 2451545.0009D;
-	
 	private final DateTimeFormat dateTimeFormat = DateTimeFormat.getFormat("yyyy.MM.dd HH:mm:ss");
-
 	private final NumberFormat nf = NumberFormat.getFormat("00"); //number format for hours, minutes or seconds
 	private final NumberFormat jdNf = NumberFormat.getFormat("0.0000"); //number format for JD
     
@@ -106,10 +104,6 @@ public class DateTimeUtil {
 		return dateTimeFormat.parse(gmstDateString);
 	}
 	
-
-//    public final double getLocalSiderealDegrees(final double jd) {
-//	}
-    
 	/**
 	 * @param jd
 	 * @return sidereal time in degrees.
@@ -144,11 +138,9 @@ public class DateTimeUtil {
 		final int dateYear = Integer.valueOf(dateString.substring(0,4));
 		final int dateMonth = Integer.valueOf(dateString.substring(5,7));
 		final int dateDay = Integer.valueOf(dateString.substring(8,10));
-		
 		final long a = (14L - dateMonth) / 12L;
 		final long y = dateYear + 4800L - a;
 		final long m = dateMonth + (12L * a) - 3;
-		
 		final double jdn = dateDay + 
 			(((153L * m) + 2L) / 5L) +
 			(365L * y) +
@@ -156,7 +148,6 @@ public class DateTimeUtil {
 			(y / 100L) +
 			(y / 400L) -
 			32045L;
-		
 //		return Double.valueOf(jdn).longValue();
 		return jdn;		
 	}
@@ -164,31 +155,25 @@ public class DateTimeUtil {
 	public final double getJulianDayNumberWithTime(final Date date) {
 		final double jdn = getJulianDayNumber(date);
 		final String dateString = dateTimeFormat.format(date, TimeZone.createTimeZone(0));
-		
 		final double hours = Double.valueOf(dateString.substring(11,13));
 		final double minutes = Double.valueOf(dateString.substring(14,16));
 		final double seconds = Double.valueOf(dateString.substring(17,19));
-		
 		final double result = jdn + 
 			((hours - 12D) / 24D) +
 			minutes / 1440D +
 			seconds / 86400D;
-		
 		return result; 
 	}
 
 	public final double getJulianDayNumberTimeDropped(final Date date) {
 		final double jdn = getJulianDayNumber(date);
-		
 		final double hours = 0D;
 		final double minutes = 0D;
 		final double seconds = 0D;
-		
 		final double result = jdn + 
 			((hours - 12D) / 24D) +
 			minutes / 1440D +
 			seconds / 86400D;
-		
 		return result; 
 	}
 
@@ -230,16 +215,13 @@ public class DateTimeUtil {
 
 	public final double getDecimalHours(final Date date) {
 		final String dateString = dateTimeFormat.format(date, TimeZone.createTimeZone(0));
-		
 		final double hours = Double.valueOf(dateString.substring(11,13));
 		final double minutes = Double.valueOf(dateString.substring(14,16));
 		final double seconds = Double.valueOf(dateString.substring(17,19));
-		
 		final double decimalHours = 
 			hours +
 			minutes / 60D +
 			seconds / 3600D;
-			
 	    return decimalHours;
     }
 

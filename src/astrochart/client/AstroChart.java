@@ -12,7 +12,7 @@ public class AstroChart implements EntryPoint {
 
     @Override
     public final void onModuleLoad() {
-        final Image titleImage = new Image("/images/Title.png");
+        final Image titleImage = new Image("/images/AstroChartTitle.png");
         RootPanel.get("title").add(titleImage);
         appController.go(RootPanel.get("content"));
     }

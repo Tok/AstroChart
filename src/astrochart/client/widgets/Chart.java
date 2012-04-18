@@ -68,7 +68,7 @@ public class Chart extends Composite {
 		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
 			@Override
 			public void execute() {
-				generateChart(new AscendentAndOffset(ZodiacSign.Aries, 0.0D), null, HouseType.Equal);
+				generateChart(new AscendentAndOffset(ZodiacSign.Aries, 0.0D, 270D), null, HouseType.Equal);
 			}
 		});		
     }
@@ -163,6 +163,16 @@ public class Chart extends Composite {
 					drawExcentricLine(ctx, angle, ChartProportions.Inner, ChartProportions.InnerLine); //draw inner planet mark
 				}
 			}
+			
+
+			/*
+			//mark midheaven
+			System.out.println("MC: " + ascendent.getMidheaven());
+			final double angle = keepInRange(ascendent.getMidheaven());
+			drawExcentricLine(ctx, angle, ChartProportions.PlanetMark, ChartProportions.InnerMark); //draw outer mark
+			writeExcentricInfo(ctx, 12, "MC", angle, ChartProportions.PlanetSign);
+			drawExcentricLine(ctx, angle, ChartProportions.Degree, ChartProportions.Inner); //draw inner mark
+			*/
 			
 			//draw aspects
 			eventBus.fireEvent(new ResetAspectsEvent());

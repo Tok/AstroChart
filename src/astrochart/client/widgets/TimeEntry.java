@@ -174,7 +174,7 @@ public class TimeEntry extends Composite {
                 status.append(" UTC ");
             }
             statusLabel.setText(status.toString());
-            eventBus.fireEvent(new DateUpdatedEvent(dateTimeUtil.getUtcDate(localDate)));
+            eventBus.fireEvent(new DateUpdatedEvent(localDate));
         } catch (IllegalArgumentException iae) {
             statusLabel.setText(iae.getMessage());
         }

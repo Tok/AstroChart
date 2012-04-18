@@ -5,10 +5,10 @@ import com.google.gwt.event.shared.GwtEvent;
 
 public class DateUpdatedEvent extends GwtEvent<DateUpdatedEventHandler> {
     public static final Type<DateUpdatedEventHandler> TYPE = new Type<DateUpdatedEventHandler>();
-    private final Date utcDate;
+    private final Date localDate;
 
-    public DateUpdatedEvent(final Date utcDate) {
-        this.utcDate = utcDate;
+    public DateUpdatedEvent(final Date localDate) {
+        this.localDate = localDate;
     }
 
     @Override
@@ -21,7 +21,7 @@ public class DateUpdatedEvent extends GwtEvent<DateUpdatedEventHandler> {
         handler.onDateUpdated(this);
     }
 
-    public final Date getUtcDate() {
-        return utcDate;
+    public final Date getLocalDate() {
+        return localDate;
     }
 }

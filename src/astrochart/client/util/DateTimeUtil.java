@@ -128,11 +128,22 @@ public class DateTimeUtil {
 
         final double a = getSiderealDegrees(jd) / DEGREES_PER_HOUR;
 
-        final double gmstHours = a % Constants.HOURS_PER_DAY;
-        final double gmstMinutes = ((a % Constants.HOURS_PER_DAY) * Constants.MINUTES_PER_HOUR)
+        double gmstHours = a % Constants.HOURS_PER_DAY;
+        double gmstMinutes = ((a % Constants.HOURS_PER_DAY) * Constants.MINUTES_PER_HOUR)
                 % Constants.MINUTES_PER_HOUR;
-        final double gmstSeconds = ((a % Constants.HOURS_PER_DAY) * Constants.MINUTES_PER_HOUR * Constants.SECONDS_PER_MINUTE)
+        double gmstSeconds = ((a % Constants.HOURS_PER_DAY) * Constants.MINUTES_PER_HOUR * Constants.SECONDS_PER_MINUTE)
                 % Constants.SECONDS_PER_MINUTE;
+
+        //FIXME test
+        if (gmstHours < 0) {
+            gmstHours += Constants.HOURS_PER_DAY;
+        }
+        if (gmstMinutes < 0) {
+            gmstMinutes += Constants.MINUTES_PER_HOUR;
+        }
+        if (gmstSeconds < 0) {
+            gmstSeconds += Constants.SECONDS_PER_MINUTE;
+        }
 
         final String dateString = dateTimeFormat.format(date);
         final int dateYear = Integer.valueOf(dateString.substring(0, 4));

@@ -254,8 +254,7 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
         getEventBus().addHandler(DateUpdatedEvent.TYPE, new DateUpdatedEventHandler() {
             @Override
             public void onDateUpdated(final DateUpdatedEvent event) {
-                utcDate = event.getUtcDate();
-                updateEpoch();
+                updateEpoch(event.getLocalDate());
             }
         });
         getEventBus().addHandler(ResetAspectsEvent.TYPE, new ResetAspectsEventHandler() {
@@ -294,9 +293,17 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
     }
 
     private void updateEpoch() {
+        updateEpoch(null);
+    }
+
+    private void updateEpoch(final Date inputLocalDate) {
         display.getStatusLabel().setText("Updating positions.");
 
-        localDate = display.getTimeEntry().getLocalDate();
+        if (inputLocalDate != null) {
+            localDate = inputLocalDate;
+        } else {
+            localDate = display.getTimeEntry().getLocalDate();
+        }
         display.getUtcLabel().setTitle(
                 "As Time in your local timezone: \n" + dateTimeUtil.formatLocalDate(localDate) + display.getTimeEntry().getClientTimezone());
         display.getUtcLabel().setText(dateTimeUtil.formatDateAsUtc(localDate));
@@ -346,7 +353,9 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
             public void onSuccess(final Position result) {
                 final Coordinates coords = result.getCoordinates();
                 display.getLatitudeTextBox().setText(String.valueOf(coords.getLatitude()));
+                //display.getLatitudeTextBox().setTitle(); // TODO convert to deg + mins + seconds
                 display.getLongitudeTextBox().setText(String.valueOf(coords.getLongitude()));
+                //display.getLongitudeTextBox().setTitle(); // TODO convert to deg + mins + seconds
                 processCustomGeocode(true);
             }
             @Override

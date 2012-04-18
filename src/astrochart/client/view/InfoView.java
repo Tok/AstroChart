@@ -15,11 +15,9 @@ public class InfoView extends Composite implements InfoPresenter.Display {
         final DecoratorPanel contentTableDecorator = new DecoratorPanel();
         contentTableDecorator.setWidth("1010px");
         initWidget(contentTableDecorator);
-
         contentTable = new FlexTable();
         infoList.setWidth("987px");
         contentTable.setWidget(0, 0, infoList);
-
         contentTableDecorator.add(contentTable);
     }
 

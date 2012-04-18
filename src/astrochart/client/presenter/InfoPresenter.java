@@ -11,7 +11,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class InfoPresenter extends AbstractTabPresenter implements Presenter {
     private final Display display;
     private int row = 0;
-    
+
     public interface Display {
         FlexTable getInfoList();
         Widget asWidget();
@@ -34,11 +34,9 @@ public class InfoPresenter extends AbstractTabPresenter implements Presenter {
         container.add(super.getTabPanel());
     }
 
-    //formatter:off
-    private final void prepareTable() {
+    private void prepareTable() {
         display.getInfoList().removeAllRows();
         display.getInfoList().getColumnFormatter().setWidth(0, "100px");
-
         addRowText("Welcome to Astrology Chart Generator.");
         addRowText("This application is work in progress and may therefore still display incorrect results.");
         addRowWidget(new HTML("&nbsp;"));
@@ -60,16 +58,15 @@ public class InfoPresenter extends AbstractTabPresenter implements Presenter {
         addRowText("The source code and the unit tests of this application can be found at:");
         addRowWidget(new Anchor("https://github.com/Tok/AstroChart", "https://github.com/Tok/AstroChart"));
     }
-    //formatter:on
-    
-    private final void addRowText(final String text) {
-    	display.getInfoList().setText(row, 0, text);
-    	row++;
+
+    private void addRowText(final String text) {
+        display.getInfoList().setText(row, 0, text);
+        row++;
     }
 
-    private final void addRowWidget(final Widget widget) {
-    	display.getInfoList().setWidget(row, 0, widget);
-    	row++;
+    private void addRowWidget(final Widget widget) {
+        display.getInfoList().setWidget(row, 0, widget);
+        row++;
     }
-    
+
 }

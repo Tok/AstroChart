@@ -11,7 +11,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class AdminView extends Composite implements AdminPresenter.Display {
     private final FlexTable contentTable;
-    
     private final Button submitButton = new Button("Submit");
     private final TextArea inputTextArea = new TextArea();
     private final Label statusLabel = new Label();
@@ -21,16 +20,13 @@ public class AdminView extends Composite implements AdminPresenter.Display {
         final DecoratorPanel contentTableDecorator = new DecoratorPanel();
         contentTableDecorator.setWidth("1010px");
         initWidget(contentTableDecorator);
-
         contentTable = new FlexTable();
-        
         contentTable.setWidget(0, 0, submitButton);
         inputTextArea.setWidth("997px");
         inputTextArea.setHeight("500px");
         contentTable.setWidget(1, 0, inputTextArea);
         contentTable.setWidget(2, 0, statusLabel);
         contentTable.setWidget(3, 0, secondStatusLabel);
-        
         contentTableDecorator.add(contentTable);
     }
 
@@ -43,17 +39,17 @@ public class AdminView extends Composite implements AdminPresenter.Display {
     public final Button getSubmitButton() {
         return submitButton;
     }
-    
+
     @Override
     public final TextArea getInputTextArea() {
         return inputTextArea;
     }
-    
+
     @Override
     public final Label getStatusLabel() {
         return statusLabel;
     }
-    
+
     @Override
     public final Label getSecondStatusLabel() {
         return secondStatusLabel;

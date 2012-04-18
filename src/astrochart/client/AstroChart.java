@@ -7,7 +7,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
-public class AstroChart implements EntryPoint {	
+public class AstroChart implements EntryPoint {
     private final AppController appController = new AppController();
 
     @Override

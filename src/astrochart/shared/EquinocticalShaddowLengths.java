@@ -6,96 +6,62 @@ import astrochart.shared.enums.RashimanaGroup;
 import astrochart.shared.enums.ZodiacSign;
 
 /**
- * Lengths of the equinoctial shadow of a Shanku of 12 units at different latitudes
- * Values from: http://www.vedicastro.com/astronomy6.asp
+ * Lengths of the equinoctial shadow of a Shanku of 12 units at different
+ * latitudes Values from: http://www.vedicastro.com/astronomy6.asp
  */
 public class EquinocticalShaddowLengths {
-	private final Map<Integer, Double> shaddowLengths = new HashMap<Integer, Double>(60);
-	
-	public EquinocticalShaddowLengths() {
-		shaddowLengths.put(Integer.valueOf(1), Double.valueOf(0.21D));
-		shaddowLengths.put(Integer.valueOf(2), Double.valueOf(0.42D));
-		shaddowLengths.put(Integer.valueOf(3), Double.valueOf(0.63D));
-		shaddowLengths.put(Integer.valueOf(4), Double.valueOf(0.84D));
-		shaddowLengths.put(Integer.valueOf(5), Double.valueOf(1.05D));
-		shaddowLengths.put(Integer.valueOf(6), Double.valueOf(1.26D));
-		shaddowLengths.put(Integer.valueOf(7), Double.valueOf(1.47D));
-		shaddowLengths.put(Integer.valueOf(8), Double.valueOf(1.69D));
-		shaddowLengths.put(Integer.valueOf(9), Double.valueOf(1.90D));
-		shaddowLengths.put(Integer.valueOf(10), Double.valueOf(2.11D));
-		shaddowLengths.put(Integer.valueOf(11), Double.valueOf(2.33D));
-		shaddowLengths.put(Integer.valueOf(12), Double.valueOf(2.55D));
-		shaddowLengths.put(Integer.valueOf(13), Double.valueOf(2.70D));
-		shaddowLengths.put(Integer.valueOf(14), Double.valueOf(2.99D));
-		shaddowLengths.put(Integer.valueOf(15), Double.valueOf(3.21D));
-		shaddowLengths.put(Integer.valueOf(16), Double.valueOf(3.44D));
-		shaddowLengths.put(Integer.valueOf(17), Double.valueOf(3.66D));
-		shaddowLengths.put(Integer.valueOf(18), Double.valueOf(3.90D));
-		shaddowLengths.put(Integer.valueOf(19), Double.valueOf(4.13D));
-		shaddowLengths.put(Integer.valueOf(20), Double.valueOf(4.37D));
-		shaddowLengths.put(Integer.valueOf(21), Double.valueOf(4.60D));
-		shaddowLengths.put(Integer.valueOf(22), Double.valueOf(4.85D));
-		shaddowLengths.put(Integer.valueOf(23), Double.valueOf(5.09D));
-		shaddowLengths.put(Integer.valueOf(24), Double.valueOf(5.34D));
-		shaddowLengths.put(Integer.valueOf(25), Double.valueOf(5.59D));
-		shaddowLengths.put(Integer.valueOf(26), Double.valueOf(5.85D));
-		shaddowLengths.put(Integer.valueOf(27), Double.valueOf(6.11D));
-		shaddowLengths.put(Integer.valueOf(28), Double.valueOf(6.38D));
-		shaddowLengths.put(Integer.valueOf(29), Double.valueOf(6.65D));
-		shaddowLengths.put(Integer.valueOf(30), Double.valueOf(6.93D));
-		shaddowLengths.put(Integer.valueOf(31), Double.valueOf(7.21D));
-		shaddowLengths.put(Integer.valueOf(32), Double.valueOf(7.50D));
-		shaddowLengths.put(Integer.valueOf(33), Double.valueOf(7.79D));
-		shaddowLengths.put(Integer.valueOf(34), Double.valueOf(8.09D));
-		shaddowLengths.put(Integer.valueOf(35), Double.valueOf(8.40D));
-		shaddowLengths.put(Integer.valueOf(36), Double.valueOf(8.71D));
-		shaddowLengths.put(Integer.valueOf(37), Double.valueOf(9.04D));
-		shaddowLengths.put(Integer.valueOf(38), Double.valueOf(9.37D));
-		shaddowLengths.put(Integer.valueOf(39), Double.valueOf(9.72D));
-		shaddowLengths.put(Integer.valueOf(40), Double.valueOf(10.06D));
-		shaddowLengths.put(Integer.valueOf(41), Double.valueOf(10.43D));
-		shaddowLengths.put(Integer.valueOf(42), Double.valueOf(10.80D));
-		shaddowLengths.put(Integer.valueOf(43), Double.valueOf(11.19D));
-		shaddowLengths.put(Integer.valueOf(44), Double.valueOf(11.58D));
-		shaddowLengths.put(Integer.valueOf(45), Double.valueOf(12.00D));
-		shaddowLengths.put(Integer.valueOf(46), Double.valueOf(12.42D));
-		shaddowLengths.put(Integer.valueOf(47), Double.valueOf(12.87D));
-		shaddowLengths.put(Integer.valueOf(48), Double.valueOf(13.33D));
-		shaddowLengths.put(Integer.valueOf(49), Double.valueOf(13.80D));
-		shaddowLengths.put(Integer.valueOf(50), Double.valueOf(14.30D));
-		shaddowLengths.put(Integer.valueOf(51), Double.valueOf(14.82D));
-		shaddowLengths.put(Integer.valueOf(52), Double.valueOf(15.35D));
-		shaddowLengths.put(Integer.valueOf(53), Double.valueOf(15.92D));
-		shaddowLengths.put(Integer.valueOf(54), Double.valueOf(16.52D));
-		shaddowLengths.put(Integer.valueOf(55), Double.valueOf(17.13D));
-		shaddowLengths.put(Integer.valueOf(56), Double.valueOf(17.79D));
-		shaddowLengths.put(Integer.valueOf(57), Double.valueOf(18.46D));
-		shaddowLengths.put(Integer.valueOf(58), Double.valueOf(19.20D));
-		shaddowLengths.put(Integer.valueOf(59), Double.valueOf(19.97D));
-		shaddowLengths.put(Integer.valueOf(60), Double.valueOf(20.78D));
-	}
+    private static final double CHARAKHANDA_MULTIPLICATOR_1 = 10D;
+    private static final double CHARAKHANDA_MULTIPLICATOR_2 = 8D;
+    private static final double CHARAKHANDA_MULTIPLICATOR_3 = 3.3333333333D;
+    private static final int LATITUDES = 60;
+    private final Map<Integer, Double> shaddowLengths = new HashMap<Integer, Double>(LATITUDES);
 
-	public final double getShaddowLength(final int latitude) {
-		return shaddowLengths.get(Integer.valueOf(latitude)).doubleValue();
-	}
+    private enum ShaddowLength {
+        _01(0.21D), _02(0.42D), _03(0.63D), _04(0.84D), _05(1.05D), _06(1.26D), _07(1.47D), _08(1.69D), _09(1.90D), _10(2.11D),
+        _11(2.33D), _12(2.55D), _13(2.70D), _14(2.99D), _15(3.21D), _16(3.44D), _17(3.66D), _18(3.90D), _19(4.13D), _20(4.37D),
+        _21(4.60D), _22(4.85D), _23(5.09D), _24(5.34D), _25(5.59D), _26(5.85D), _27(6.11D), _28(6.38D), _29(6.65D), _30(6.93D),
+        _31(7.21D), _32(7.50D), _33(7.79D), _34(8.09D), _35(8.40D), _36(8.71D), _37(9.04D), _38(9.37D), _39(9.72D), _40(10.06D),
+        _41(10.43D), _42(10.80D), _43(11.19D), _44(11.58D), _45(12.00D), _46(12.42D), _47(12.87D), _48(13.33D), _49(13.80D), _50(14.30D),
+        _51(14.82D), _52(15.35D), _53(15.92D), _54(16.52D), _55(17.13D), _56(17.79D), _57(18.46D), _58(19.20D), _59(19.97D), _60(20.78D);
 
-	public final int calculateCharakhandas (final ZodiacSign sign, final int latitude) {
-		return calculatePalas(sign, latitude) * 6; //in asus
-	}
+        private final double length;
 
-	private final int calculatePalas(final ZodiacSign sign, final int latitude) {
-		int result = 0;
-		final double shaddowLenght = getShaddowLength(latitude);
-		if (RashimanaGroup.I.equals(sign.getRashimanaGroup())) {
-			result = (int) (shaddowLenght * 10D);
-		} else if (RashimanaGroup.II.equals(sign.getRashimanaGroup())) {
-			result = (int) (shaddowLenght * 8D);
-		} else if (RashimanaGroup.III.equals(sign.getRashimanaGroup())) {
-			result = (int) (shaddowLenght * (10D / 3D));
-		} else {
-			assert false;
-		}
-		return result;
-	}
-	
+        ShaddowLength(final double length) {
+            this.length = length;
+        }
+
+        public double getLength() {
+            return length;
+        }
+    }
+
+    public EquinocticalShaddowLengths() {
+        for (ShaddowLength sl : ShaddowLength.values()) {
+            shaddowLengths.put(Integer.valueOf(sl.name().substring(1, 3)), Double.valueOf(sl.getLength()));
+        }
+    }
+
+    public final double getShaddowLength(final int latitude) {
+        return shaddowLengths.get(Integer.valueOf(latitude)).doubleValue();
+    }
+
+    public final int calculateCharakhandas(final ZodiacSign sign, final int latitude) {
+        return calculatePalas(sign, latitude) * 6; // in asus
+    }
+
+    private int calculatePalas(final ZodiacSign sign, final int latitude) {
+        int result = 0;
+        final double shaddowLenght = getShaddowLength(latitude);
+        if (RashimanaGroup.I.equals(sign.getRashimanaGroup())) {
+            result = (int) (shaddowLenght * CHARAKHANDA_MULTIPLICATOR_1);
+        } else if (RashimanaGroup.II.equals(sign.getRashimanaGroup())) {
+            result = (int) (shaddowLenght * CHARAKHANDA_MULTIPLICATOR_2);
+        } else if (RashimanaGroup.III.equals(sign.getRashimanaGroup())) {
+            result = (int) (shaddowLenght * CHARAKHANDA_MULTIPLICATOR_3);
+        } else {
+            throw new IllegalArgumentException("Sign " + sign + " has illegal rashomana group: " + sign.getRashimanaGroup());
+        }
+        return result;
+    }
+
 }

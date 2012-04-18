@@ -13,14 +13,14 @@ public class AdminServiceImpl extends RemoteServiceServlet implements AdminServi
     @SuppressWarnings("unused")
     private static final Logger LOG = Logger.getLogger(AdminServiceImpl.class.getName());
     private static final PersistenceManagerFactory PMF = JDOHelper.getPersistenceManagerFactory("transactions-optional");
-    
+
     @Override
     public final void saveEpoch(final Epoch epoch) {
-    	System.out.println(epoch);
+        System.out.println(epoch);
         final PersistenceManager pm = PMF.getPersistenceManager();
         try {
             pm.makePersistent(epoch);
-            //LOG.log(Level.INFO, "Epoch stored: " + epoch);
+            // LOG.log(Level.INFO, "Epoch stored: " + epoch);
         } finally {
             pm.close();
         }

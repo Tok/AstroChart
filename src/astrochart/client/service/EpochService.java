@@ -8,5 +8,5 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("epoch")
 public interface EpochService extends RemoteService {
-	Epoch readEpoch(final Date date) throws EpochNotFoundException;
+    Epoch readEpoch(final Date date) throws EpochNotFoundException;
 }

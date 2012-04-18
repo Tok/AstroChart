@@ -5,12 +5,12 @@ import com.google.gwt.event.shared.GwtEvent;
 public class SetStatusEvent extends GwtEvent<SetStatusEventHandler> {
     public static final Type<SetStatusEventHandler> TYPE = new Type<SetStatusEventHandler>();
     private final String statusMessage;
-    
-    public SetStatusEvent(String statusMessage) {
-    	this.statusMessage = statusMessage;
+
+    public SetStatusEvent(final String statusMessage) {
+        this.statusMessage = statusMessage;
     }
 
-	@Override
+    @Override
     public final Type<SetStatusEventHandler> getAssociatedType() {
         return TYPE;
     }
@@ -20,7 +20,7 @@ public class SetStatusEvent extends GwtEvent<SetStatusEventHandler> {
         handler.onSetStatus(this);
     }
 
-	public String getStatusMessage() {
-	    return statusMessage;
+    public final String getStatusMessage() {
+        return statusMessage;
     }
 }

@@ -6,5 +6,5 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("admin")
 public interface AdminService extends RemoteService {
-	void saveEpoch(Epoch epoch);
+    void saveEpoch(Epoch epoch);
 }

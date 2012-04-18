@@ -2,6 +2,7 @@ package astrochart.client.widgets;
 
 import java.util.Date;
 import astrochart.client.event.DateUpdatedEvent;
+import astrochart.client.util.Constants;
 import astrochart.client.util.DateTimeUtil;
 import astrochart.shared.enums.time.Month;
 import astrochart.shared.enums.time.TimeZone;
@@ -18,9 +19,11 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 
 public class TimeEntry extends Composite {
+    private static final int HIGHER_BOUNDARY = 2100;
+    private static final int LOWER_BOUNDARY = 1900;
     private final HandlerManager eventBus;
     private final DateTimeUtil dateTimeUtil;
-	private final FlexTable flex = new FlexTable();
+    private final FlexTable flex = new FlexTable();
     private final TextBox yearTextBox = new TextBox();
     private final ListBox monthListBox = new ListBox();
     private final TextBox dayTextBox = new TextBox();
@@ -29,234 +32,228 @@ public class TimeEntry extends Composite {
     private final TextBox secondsTextBox = new TextBox();
     private final ListBox timeZoneListBox = new ListBox();
     private final Button updateButton = new Button("Submit");
-    private final Label statusLabel = new Label(String.valueOf('\u00A0')); //NBSP
+    private final Label statusLabel = new Label(String.valueOf('\u00A0')); // NBSP
     private final DateTimeFormat dateTimeFormat = DateTimeFormat.getFormat("yyyy.MM.dd HH:mm:ss");
     private int clientOffset;
-    private Date localDate; //local date of the client, not the ListBox
-    
-	public TimeEntry(final HandlerManager eventBus, final DateTimeUtil dateTimeUtil) {
-		this.eventBus = eventBus;
-		this.dateTimeUtil = dateTimeUtil;
-		localDate = new Date(); 
-		
-		flex.setText(0, 0, "Year");
-		flex.setText(0, 1, "Month");
-		flex.setText(0, 2, "Day");
-		flex.setText(0, 3, "Hours");
-		flex.setText(0, 4, "Minutes");
-		flex.setText(0, 5, "Seconds");
-		flex.setText(0, 6, "Timezone");
-		flex.setText(0, 7, "Action");
+    private Date localDate; // local date of the client, not the ListBox
 
-		yearTextBox.setWidth("50px");
-		flex.setWidget(1, 0, yearTextBox);
-		for (final Month month : Month.values()) {
-			monthListBox.addItem(month.name());
-		}
-		flex.setWidget(1, 1, monthListBox);
-		dayTextBox.setWidth("50px");
-		flex.setWidget(1, 2, dayTextBox);
-		
-		hoursTextBox.setWidth("50px");
-		flex.setWidget(1, 3, hoursTextBox);
-		minutesTextBox.setWidth("50px");
-		flex.setWidget(1, 4, minutesTextBox);
-		secondsTextBox.setWidth("50px");
-		flex.setWidget(1, 5, secondsTextBox);
-		for (final TimeZone zone : TimeZone.values()) {
-			timeZoneListBox.addItem(zone.getName());
-		}
-		flex.setWidget(1, 6, timeZoneListBox);
-		updateButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				updateDate();
-			}
-		});
-		flex.setWidget(1, 7, updateButton);
+    private enum Column {
+        Year(0),
+        Month(1),
+        Day(2),
+        Hours(3),
+        Minutes(4),
+        Seconds(5),
+        Timezone(6),
+        Action(7);
 
-		flex.setWidget(2, 0, statusLabel);
-		flex.getFlexCellFormatter().setColSpan(2, 0, 8);
-		
-		updateValues();
-		updateDate();
-		
-		initWidget(flex);
-		setStyleName("time-entry");
-	}
+        private int number;
 
-	private final void updateValues() {
-		yearTextBox.setText(String.valueOf(getYear()));
-		int monthListIndex = 0;
-		for (final Month month : Month.values()) {
-			if (getMonth() == month.getNumber()) {
-				monthListBox.setSelectedIndex(monthListIndex);
-			}
-			monthListIndex++;
-		}
-		dayTextBox.setText(String.valueOf(getDay()));
-		hoursTextBox.setText(String.valueOf(getHours()));
-		minutesTextBox.setText(String.valueOf(getMinutes()));
-		secondsTextBox.setText(String.valueOf(getSeconds()));
-		double timeZoneOffset = DOM.getElementById("timeZone").getPropertyDouble("value");
-		int zoneListIndex = 0;
-		for (final TimeZone zone : TimeZone.values()) {
-			if (Double.valueOf(timeZoneOffset * 60).intValue() == zone.getUtcOffsetMinutes()) {
-				clientOffset = Double.valueOf(timeZoneOffset * 60).intValue();
-				timeZoneListBox.setSelectedIndex(zoneListIndex);
-			}
-			zoneListIndex++;
-		}
-	}
-	
-	private final int getYear() {
-		return Integer.valueOf(dateTimeFormat.format(localDate).substring(0,4));
-	}
-	
-	private final int getMonth() {
-		return Integer.valueOf(dateTimeFormat.format(localDate).substring(5,7));
-	}
+        Column(final int number) {
+            this.number = number;
+        }
 
-	private final int getDay() {
-		return Integer.valueOf(dateTimeFormat.format(localDate).substring(8,10));
-	}
+        public int getNumber() {
+            return number;
+        }
+    };
 
-	private final int getHours() {
-		return Integer.valueOf(dateTimeFormat.format(localDate).substring(11,13));
-	}
-	
-	private final int getMinutes() {
-		return Integer.valueOf(dateTimeFormat.format(localDate).substring(14,16));
-	}
+    public TimeEntry(final HandlerManager eventBus, final DateTimeUtil dateTimeUtil) {
+        this.eventBus = eventBus;
+        this.dateTimeUtil = dateTimeUtil;
+        localDate = new Date();
 
-	private final int getSeconds() {
-		return Integer.valueOf(dateTimeFormat.format(localDate).substring(17,19));
-	}
+        for (Column column : Column.values()) {
+            flex.setText(0, column.getNumber(), column.name());
+        }
 
-	private final void updateDate() {
-		//"yyyy.MM.dd HH:mm:ss"
-		statusLabel.setText(String.valueOf('\u00A0'));
-		try {
-			final StringBuilder dateString = new StringBuilder();
-			validateYear();
-			dateString.append(yearTextBox.getText());
-			dateString.append(".");
-			final Month month = Month.valueOf(monthListBox.getValue(monthListBox.getSelectedIndex()));
-			dateString.append(formatToTwoDigits(String.valueOf(month.getNumber())));
-			dateString.append(".");
-			validateDay();
-			dateString.append(formatToTwoDigits(dayTextBox.getText()));
-			dateString.append(" ");
-			validateHours();
-			dateString.append(formatToTwoDigits(hoursTextBox.getText()));
-			dateString.append(":");
-			validateMinutes();
-			dateString.append(formatToTwoDigits(minutesTextBox.getText()));
-			dateString.append(":");
-			validateSeconds();
-			dateString.append(formatToTwoDigits(secondsTextBox.getText()));
-			final Date tempDate = dateTimeFormat.parse(dateString.toString());
-			final TimeZone timeZone = TimeZone.getTimeZoneForName(timeZoneListBox.getValue(timeZoneListBox.getSelectedIndex()));
-//			final com.google.gwt.i18n.client.TimeZone tzUtc = com.google.gwt.i18n.client.TimeZone.createTimeZone(0);
-//			final com.google.gwt.i18n.client.TimeZone tz = com.google.gwt.i18n.client.TimeZone.createTimeZone(timeZone.getUtcOffsetMinutes());
-			final Date boxDate = new Date(tempDate.getTime() - (timeZone.getUtcOffsetMinutes() * 60000L));
-			localDate = new Date(boxDate.getTime() + (clientOffset * 60000L));
-			final StringBuilder status = new StringBuilder();
-			status.append(dateTimeFormat.format(tempDate));
-			status.append(" ");
-			status.append(timeZone.getName());
-			if (timeZone.getUtcOffsetMinutes() != clientOffset) {
-				status.append(" --> ");
-				status.append(dateTimeFormat.format(localDate));
-				status.append(" UTC+");
-				status.append(clientOffset / 60);
-			}
-			if (timeZone.getUtcOffsetMinutes() != 0) {
-				status.append(" --> ");
-				status.append(dateTimeFormat.format(boxDate));
-				status.append(" UTC ");
-			}
-			statusLabel.setText(status.toString());
-			eventBus.fireEvent(new DateUpdatedEvent(dateTimeUtil.getUtcDate(localDate)));
-		} catch (IllegalArgumentException iae) {
-			statusLabel.setText(iae.getMessage());
-		}
-	}
-	
-	private final void validateSeconds() throws IllegalArgumentException {
-		int minutes = Integer.valueOf(secondsTextBox.getText());
-		if (minutes < 0 || minutes > 59) {
-			secondsTextBox.setFocus(true);
-			throw new IllegalArgumentException("Seconds are out of range.");
-		}
-	}
-	
-	private final void validateMinutes() throws IllegalArgumentException {
-		int minutes = Integer.valueOf(minutesTextBox.getText());
-		if (minutes < 0 || minutes > 59) {
-			minutesTextBox.setFocus(true);
-			throw new IllegalArgumentException("Minutes are out of range.");
-		}
-	}
-	
-	private final void validateHours() throws IllegalArgumentException {
-		int hours = Integer.valueOf(hoursTextBox.getText());
-		if (hours < 0 || hours > 23) {
-			hoursTextBox.setFocus(true);
-			throw new IllegalArgumentException("Hour is out of range.");
-		}
-	}
-	
-	private final void validateYear() throws IllegalArgumentException {
-		int year = Integer.valueOf(yearTextBox.getText());
-		if (year < 1900 || year > 2100) {
-			yearTextBox.setFocus(true);
-			throw new IllegalArgumentException("Year is out of range.");
-		}
-	}
+        yearTextBox.setWidth("50px");
+        flex.setWidget(1, Column.Year.getNumber(), yearTextBox);
+        for (final Month month : Month.values()) {
+            monthListBox.addItem(month.name());
+        }
+        flex.setWidget(1, Column.Month.getNumber(), monthListBox);
+        dayTextBox.setWidth("50px");
+        flex.setWidget(1, Column.Day.getNumber(), dayTextBox);
 
-	private final void validateDay() throws IllegalArgumentException {
-		int day = Integer.valueOf(dayTextBox.getText());
-		final Month month = Month.valueOf(monthListBox.getValue(monthListBox.getSelectedIndex()));
-		if (day < 1 || day > month.getDays()) {
-			int year = Integer.valueOf(yearTextBox.getText());
-			if (day == month.getDays() +1 && DateTimeUtil.isLeapYear(year) && month.equals(Month.February)) {
-				dayTextBox.setFocus(true);
-				throw new IllegalArgumentException("Day is out of range. (" + year + " is a leap year).");
-			} else {
-				dayTextBox.setFocus(true);
-				throw new IllegalArgumentException("Day is out of range.");
-			}
-		}
-	}
-	
-	private final String formatToTwoDigits(final String in) {
-		if (in.length() == 1) {
-			return "0" + in;
-		} else {
-			return in;
-		}
-	}
+        hoursTextBox.setWidth("50px");
+        flex.setWidget(1, Column.Hours.getNumber(), hoursTextBox);
+        minutesTextBox.setWidth("50px");
+        flex.setWidget(1, Column.Minutes.getNumber(), minutesTextBox);
+        secondsTextBox.setWidth("50px");
+        flex.setWidget(1, Column.Seconds.getNumber(), secondsTextBox);
+        for (final TimeZone zone : TimeZone.values()) {
+            timeZoneListBox.addItem(zone.getName());
+        }
+        flex.setWidget(1, Column.Timezone.getNumber(), timeZoneListBox);
+        updateButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(final ClickEvent event) {
+                updateDate();
+            }
+        });
+        flex.setWidget(1, Column.Action.getNumber(), updateButton);
 
-	public final Date getLocalDate() {
-	    return localDate;
+        flex.setWidget(2, 0, statusLabel);
+        flex.getFlexCellFormatter().setColSpan(2, 0, Column.values().length + 1);
+
+        updateValues();
+        updateDate();
+
+        initWidget(flex);
+        setStyleName("time-entry");
     }
-	
-	public final String getClientTimezone() {
-	    return " UTC+" + (clientOffset / 60);
+
+    private void updateValues() {
+        yearTextBox.setText(String.valueOf(dateTimeUtil.getYear(localDate)));
+        int monthListIndex = 0;
+        for (final Month month : Month.values()) {
+            if (dateTimeUtil.getMonth(localDate) == month.getNumber()) {
+                monthListBox.setSelectedIndex(monthListIndex);
+            }
+            monthListIndex++;
+        }
+        dayTextBox.setText(String.valueOf(dateTimeUtil.getDay(localDate)));
+        hoursTextBox.setText(String.valueOf(dateTimeUtil.getHours(localDate)));
+        minutesTextBox.setText(String.valueOf(dateTimeUtil.getMinutes(localDate)));
+        secondsTextBox.setText(String.valueOf(dateTimeUtil.getSeconds(localDate)));
+        double timeZoneOffset = DOM.getElementById("timeZone").getPropertyDouble("value");
+        int zoneListIndex = 0;
+        for (final TimeZone zone : TimeZone.values()) {
+            if (Double.valueOf(timeZoneOffset * Constants.SECONDS_PER_MINUTE).intValue() == zone.getUtcOffsetMinutes()) {
+                clientOffset = Double.valueOf(timeZoneOffset * Constants.SECONDS_PER_MINUTE).intValue();
+                timeZoneListBox.setSelectedIndex(zoneListIndex);
+            }
+            zoneListIndex++;
+        }
     }
-	
-	public final void updateDate(final Date newUtcDate) {
-		localDate = newUtcDate;
-		updateValues();
-		int zoneListIndex = 0;
-		for (final TimeZone zone : TimeZone.values()) {
-			if (zone.getUtcOffsetMinutes() == 0) {
-				timeZoneListBox.setSelectedIndex(zoneListIndex);
-				break;
-			}
-			zoneListIndex++;
-		}
-		updateDate();
-	}
+
+    private void updateDate() {
+        // "yyyy.MM.dd HH:mm:ss"
+        statusLabel.setText(String.valueOf('\u00A0'));
+        try {
+            final StringBuilder dateString = new StringBuilder();
+            validateYear();
+            dateString.append(yearTextBox.getText());
+            dateString.append(".");
+            final Month month = Month.valueOf(monthListBox.getValue(monthListBox.getSelectedIndex()));
+            dateString.append(formatToTwoDigits(String.valueOf(month.getNumber())));
+            dateString.append(".");
+            validateDay();
+            dateString.append(formatToTwoDigits(dayTextBox.getText()));
+            dateString.append(" ");
+            validateHours();
+            dateString.append(formatToTwoDigits(hoursTextBox.getText()));
+            dateString.append(":");
+            validateMinutes();
+            dateString.append(formatToTwoDigits(minutesTextBox.getText()));
+            dateString.append(":");
+            validateSeconds();
+            dateString.append(formatToTwoDigits(secondsTextBox.getText()));
+            final Date tempDate = dateTimeFormat.parse(dateString.toString());
+            final TimeZone timeZone = TimeZone.getTimeZoneForName(timeZoneListBox.getValue(timeZoneListBox.getSelectedIndex()));
+            // final com.google.gwt.i18n.client.TimeZone tzUtc =
+            // com.google.gwt.i18n.client.TimeZone.createTimeZone(0);
+            // final com.google.gwt.i18n.client.TimeZone tz =
+            // com.google.gwt.i18n.client.TimeZone.createTimeZone(timeZone.getUtcOffsetMinutes());
+            final Date boxDate = new Date(tempDate.getTime() - (timeZone.getUtcOffsetMinutes() * Constants.MILLISECONDS_PER_MINUTE));
+            localDate = new Date(boxDate.getTime() + (clientOffset * Constants.MILLISECONDS_PER_MINUTE));
+            final StringBuilder status = new StringBuilder();
+            status.append(dateTimeFormat.format(tempDate));
+            status.append(" ");
+            status.append(timeZone.getName());
+            if (timeZone.getUtcOffsetMinutes() != clientOffset) {
+                status.append(" --> ");
+                status.append(dateTimeFormat.format(localDate));
+                status.append(" UTC+");
+                status.append(clientOffset / Constants.SECONDS_PER_MINUTE);
+            }
+            if (timeZone.getUtcOffsetMinutes() != 0) {
+                status.append(" --> ");
+                status.append(dateTimeFormat.format(boxDate));
+                status.append(" UTC ");
+            }
+            statusLabel.setText(status.toString());
+            eventBus.fireEvent(new DateUpdatedEvent(dateTimeUtil.getUtcDate(localDate)));
+        } catch (IllegalArgumentException iae) {
+            statusLabel.setText(iae.getMessage());
+        }
+    }
+
+    private void validateSeconds() {
+        int minutes = Integer.valueOf(secondsTextBox.getText());
+        if (minutes < 0 || minutes > Constants.MINUTES_PER_HOUR - 1) {
+            secondsTextBox.setFocus(true);
+            throw new IllegalArgumentException("Seconds are out of range.");
+        }
+    }
+
+    private void validateMinutes() {
+        int minutes = Integer.valueOf(minutesTextBox.getText());
+        if (minutes < 0 || minutes > Constants.MINUTES_PER_HOUR - 1) {
+            minutesTextBox.setFocus(true);
+            throw new IllegalArgumentException("Minutes are out of range.");
+        }
+    }
+
+    private void validateHours() {
+        int hours = Integer.valueOf(hoursTextBox.getText());
+        if (hours < 0 || hours > Constants.HOURS_PER_DAY - 1) {
+            hoursTextBox.setFocus(true);
+            throw new IllegalArgumentException("Hour is out of range.");
+        }
+    }
+
+    private void validateYear() {
+        int year = Integer.valueOf(yearTextBox.getText());
+        if (year < LOWER_BOUNDARY || year > HIGHER_BOUNDARY) {
+            yearTextBox.setFocus(true);
+            throw new IllegalArgumentException("Year is out of range.");
+        }
+    }
+
+    private void validateDay() {
+        int day = Integer.valueOf(dayTextBox.getText());
+        final Month month = Month.valueOf(monthListBox.getValue(monthListBox.getSelectedIndex()));
+        if (day < 1 || day > month.getDays()) {
+            int year = Integer.valueOf(yearTextBox.getText());
+            if (day == month.getDays() + 1 && DateTimeUtil.isLeapYear(year) && month.equals(Month.February)) {
+                dayTextBox.setFocus(true);
+                throw new IllegalArgumentException("Day is out of range. (" + year + " is a leap year).");
+            } else {
+                dayTextBox.setFocus(true);
+                throw new IllegalArgumentException("Day is out of range.");
+            }
+        }
+    }
+
+    private String formatToTwoDigits(final String in) {
+        if (in.length() == 1) {
+            return "0" + in;
+        } else {
+            return in;
+        }
+    }
+
+    public final Date getLocalDate() {
+        return localDate;
+    }
+
+    public final String getClientTimezone() {
+        return " UTC+" + (clientOffset / Constants.MINUTES_PER_HOUR);
+    }
+
+    public final void updateDate(final Date newUtcDate) {
+        localDate = newUtcDate;
+        updateValues();
+        int zoneListIndex = 0;
+        for (final TimeZone zone : TimeZone.values()) {
+            if (zone.getUtcOffsetMinutes() == 0) {
+                timeZoneListBox.setSelectedIndex(zoneListIndex);
+                break;
+            }
+            zoneListIndex++;
+        }
+        updateDate();
+    }
 }

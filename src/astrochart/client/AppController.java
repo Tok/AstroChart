@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.TabPanel;
 
 public class AppController implements Presenter, ValueChangeHandler<String> {
     private final HandlerManager eventBus = new HandlerManager(null);
-	private final DateTimeUtil dateTimeUtil = new DateTimeUtil();
+    private final DateTimeUtil dateTimeUtil = new DateTimeUtil();
     private HasWidgets container;
 
     private final TabPanel tabPanel = new TabPanel();
@@ -57,7 +57,7 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
             }
         });
 
-        tabPanel.setAnimationEnabled(true); //XXX
+        tabPanel.setAnimationEnabled(true); // XXX
         tabPanel.add(chartView.asWidget(), "Chart");
         tabPanel.add(infoView.asWidget(), "Info");
     }
@@ -72,8 +72,8 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
         });
     }
 
-    private final void doEditTermCancelled() {
-    	History.newItem("chart/");
+    private void doEditTermCancelled() {
+        History.newItem("chart/");
     }
 
     @Override
@@ -90,17 +90,17 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
     public final void onValueChange(final ValueChangeEvent<String> event) {
         final String token = event.getValue();
         if (token.startsWith("chart/")) {
-        	Date providedUtcDate = null;
-			String dateString = "";
-			if (token.split("/").length > 1) {
-				dateString = token.split("/")[1];
-				try {
-					providedUtcDate = dateTimeUtil.getUtcDateFromUtcString(dateString);
-				} catch (IllegalArgumentException iae) {
-					//ignore
-				}
-			}
-        	tabPanel.selectTab(0);
+            Date providedUtcDate = null;
+            String dateString = "";
+            if (token.split("/").length > 1) {
+                dateString = token.split("/")[1];
+                try {
+                    providedUtcDate = dateTimeUtil.getUtcDateFromUtcString(dateString);
+                } catch (IllegalArgumentException iae) {
+                    assert true; // ignore
+                }
+            }
+            tabPanel.selectTab(0);
             mainPresenter = new ChartPresenter(eventBus, dateTimeUtil, tabPanel, chartView, providedUtcDate);
             mainPresenter.go(container);
         } else if (token.startsWith("info/")) {
@@ -111,7 +111,7 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
             adminPresenter = new AdminPresenter(adminView);
             adminPresenter.go(container);
         } else {
-        	//ignore
+            assert true; // ignore
         }
     }
 

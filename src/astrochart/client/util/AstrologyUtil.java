@@ -1,6 +1,7 @@
 package astrochart.client.util;
 
 import java.util.Date;
+import com.google.gwt.i18n.client.NumberFormat;
 import astrochart.shared.EquinocticalShaddowLengths;
 import astrochart.shared.enums.ZodiacSign;
 import astrochart.shared.wrappers.AscendentAndOffset;
@@ -197,7 +198,7 @@ public class AstrologyUtil {
     }
 
     public final double calculateRefractionDegrees(final double heightAngle) {
-        return heightAngle + (calculateRefraction(heightAngle) / Constants.MINUTES_IN_DEGREE);
+        return heightAngle + (calculateRefraction(heightAngle) / Constants.MINUTES_PER_DEGREE);
     }
 
     /**
@@ -506,4 +507,23 @@ public class AstrologyUtil {
         return obliqueAscension;
     }
 
+    /**
+     * Converts the provided degrees from decimal to a String with degrees, minutes and seconds.
+     * @param inDegrees decimal
+     * @return converted String
+     */
+    public final String convertDegrees(final double inDegrees) {
+        final int degrees;
+        if (inDegrees >= 0) {
+            degrees = Double.valueOf(Math.floor(inDegrees)).intValue();
+        } else {
+            degrees = Double.valueOf(Math.ceil(inDegrees)).intValue();
+        }
+        final double decimalPlaces = Math.abs(inDegrees - degrees);
+        final double exactMinutes = decimalPlaces * Constants.MINUTES_PER_DEGREE;
+        final int minutes = Double.valueOf(Math.floor(exactMinutes)).intValue();
+        final double second = Double.valueOf((exactMinutes - Math.floor(exactMinutes)) * Constants.SECONDS_PER_MINUTE);
+        final String secondString = NumberFormat.getFormat("0.0").format(second);
+        return "" + degrees + Constants.DEGREE_SIGN + minutes + Constants.MINUTE_SIGN + secondString + Constants.SECOND_SIGN;
+    }
 }

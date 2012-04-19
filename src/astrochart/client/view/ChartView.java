@@ -30,8 +30,10 @@ public class ChartView extends Composite implements ChartPresenter.Display {
     private final Button regenerateChartButton = new Button("Regenerate Chart");
     private final TextBox locationTextBox = new TextBox();
     private final Button submitCityButton = new Button("Get");
+    private final Label latitudeLabel = new Label("Latitude: ");
     private final TextBox latitudeTextBox = new TextBox();
     private final Button submitLatitudeButton = new Button("Set");
+    private final Label longitudeLabel = new Label("Longitude: ");
     private final TextBox longitudeTextBox = new TextBox();
     private final Button submitLongitudeButton = new Button("Set");
     private final Label utcLabel = new Label();
@@ -81,7 +83,7 @@ public class ChartView extends Composite implements ChartPresenter.Display {
         latPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         latitudeTextBox.setText("0.0000000");
         latitudeTextBox.setWidth("80px");
-        latPanel.add(new Label("Latitude: "));
+        latPanel.add(latitudeLabel);
         latPanel.add(latitudeTextBox);
         latPanel.add(submitLatitudeButton);
         buttonPanel.add(latPanel);
@@ -90,7 +92,7 @@ public class ChartView extends Composite implements ChartPresenter.Display {
         longPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         longitudeTextBox.setText("0.0000000");
         longitudeTextBox.setWidth("80px");
-        longPanel.add(new Label("Longitude: "));
+        longPanel.add(longitudeLabel);
         longPanel.add(longitudeTextBox);
         longPanel.add(submitLongitudeButton);
         buttonPanel.add(longPanel);

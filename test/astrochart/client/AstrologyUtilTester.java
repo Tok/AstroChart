@@ -2,6 +2,7 @@ package astrochart.client;
 
 import java.util.Date;
 import astrochart.client.util.AstrologyUtil;
+import astrochart.client.util.Constants;
 import astrochart.client.util.DateTimeUtil;
 import astrochart.shared.enums.ZodiacSign;
 import astrochart.shared.wrappers.AscendentAndOffset;
@@ -389,6 +390,14 @@ public class AstrologyUtilTester extends GWTTestCase {
         final AscendentAndOffset aao = astrologyUtil.determineAscendent(new Date(437317440000L), longitude, 48D); // 1983.11.10 13:04:00 +0000
         @SuppressWarnings("unused")
         final double oa = astrologyUtil.calculateObliqueAscension(aao.getAscendent().getEclipticLongitude() + aao.getOffset(), longitude);
+    }
+
+    public final void testDegreeConversion() throws Exception {
+        assertEquals("0" + Constants.DEGREE_SIGN + "0" + Constants.MINUTE_SIGN + "0.0" + Constants.SECOND_SIGN, astrologyUtil.convertDegrees(0.0D));
+        final double firstInput = 42.2305370D;
+        assertEquals("42" + Constants.DEGREE_SIGN + "13" + Constants.MINUTE_SIGN + "49.9" + Constants.SECOND_SIGN, astrologyUtil.convertDegrees(firstInput));
+        final double secondInput = -83.7466403;
+        assertEquals("-83" + Constants.DEGREE_SIGN + "44" + Constants.MINUTE_SIGN + "47.9" + Constants.SECOND_SIGN, astrologyUtil.convertDegrees(secondInput));
     }
 
     public final void testTrigonometry() throws Exception {

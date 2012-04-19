@@ -353,9 +353,9 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
             public void onSuccess(final Position result) {
                 final Coordinates coords = result.getCoordinates();
                 display.getLatitudeTextBox().setText(String.valueOf(coords.getLatitude()));
-                //display.getLatitudeTextBox().setTitle(); // TODO convert to deg + mins + seconds
+                display.getLatitudeTextBox().setTitle(astroUtil.convertDegrees(coords.getLatitude()));
                 display.getLongitudeTextBox().setText(String.valueOf(coords.getLongitude()));
-                //display.getLongitudeTextBox().setTitle(); // TODO convert to deg + mins + seconds
+                display.getLongitudeTextBox().setTitle(astroUtil.convertDegrees(coords.getLongitude()));
                 processCustomGeocode(true);
             }
             @Override
@@ -428,7 +428,9 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
             display.getLocationTextBox().setText(geocode.getCityName());
 
             final NumberFormat nf = NumberFormat.getFormat("0.0000000");
+            display.getLatitudeTextBox().setTitle(astroUtil.convertDegrees(geocode.getLatitude()));
             display.getLatitudeTextBox().setText(nf.format(geocode.getLatitude()));
+            display.getLongitudeTextBox().setTitle(astroUtil.convertDegrees(geocode.getLongitude()));
             display.getLongitudeTextBox().setText(nf.format(geocode.getLongitude()));
 
             final RiseAndSet ras = astroUtil.calculateSunRiseAndSet(localDate, geocode.getLatitude(), geocode.getLongitude());

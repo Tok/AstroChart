@@ -12,7 +12,6 @@ public class DateTimeUtil {
     public static final double J_CONSTANT = 2451545.0009D;
     private static final double DAYS_PER_YEAR = 365D;
     private static final long MONTHS_PER_YEAR = 12L;
-    private static final double DEGREES_PER_HOUR = 15D;
     private static final double DAYS_PER_JULIAN_CENTURY = 36525D;
     private static final double MINUTES_PER_DAY = 1440D;
     private static final double SECONDS_PER_HOUR = 3600D;
@@ -20,7 +19,17 @@ public class DateTimeUtil {
     private static final double SIDEREAL_CONSTANT_1 = 13185000.77D;
     private static final double SIDEREAL_CONSTANT_2 = 2577.765D;
     private static final double SIDEREAL_CONSTANT_3 = 38710000D;
-    private static final double STARTIME_CONSTANT_1 = 6.697376D;
+    private static final double SIDEREAL_GMST_CONSTANT_0 = 24110.54841D;
+    private static final double SIDEREAL_GMST_CONSTANT_1 = 8640184.812866D;
+    private static final double SIDEREAL_GMST_CONSTANT_2 = 0.093104D;
+    private static final double SIDEREAL_GMST_CONSTANT_3 = 0.0000062D;
+    private static final double SIDEREAL_HOUR_CONSTANT_1 = 18.697374558D;
+    private static final double SIDEREAL_HOUR_CONSTANT_2 = 24.06570982441908D;
+    private static final double GMST_HOUR_CONSTANT_1 = 6.697374558D;
+    private static final double GMST_HOUR_CONSTANT_2 = 0.06570982441908D;
+    private static final double GMST_HOUR_CONSTANT_3 = 1.00273790935D;
+    private static final double GMST_HOUR_CONSTANT_4 = 0.000026D;
+    private static final double STARTIME_CONSTANT_1 = 6.697376D; //change to GMST_HOUR_CONSTANT_1?
     private static final double STARTIME_CONSTANT_2 = 2400.05134D;
     private static final double STARTIME_CONSTANT_3 = 1.002738D;
     private static final long LEAP_YEAR_CONSTANT_4 = 4L;
@@ -65,6 +74,16 @@ public class DateTimeUtil {
 
     public final String formatLocalDate(final Date localDate) {
         return dateTimeFormat.format(localDate);
+    }
+
+    public final String formatLocalDate(final Date localDate, final String timeZone) {
+        int timeZoneMinutes = 0;
+        if (timeZone.contains("+")) {
+            timeZoneMinutes = Double.valueOf(Double.valueOf(timeZone.split("\\+")[1]) * Constants.MINUTES_PER_HOUR).intValue();
+        } else if (timeZone.contains("-")) {
+            timeZoneMinutes = Double.valueOf(Double.valueOf(timeZone.split("\\-")[1]) * Constants.MINUTES_PER_HOUR).intValue();
+        }
+        return dateTimeFormat.format(localDate, TimeZone.createTimeZone(timeZoneMinutes));
     }
 
     public final Date getUtcDate(final Date localDate) {
@@ -112,7 +131,6 @@ public class DateTimeUtil {
 //      return getLocalSidTimeDate(getUtcDate(localDate));
 //  }
 
-    //TODO cleanup magic numbers
     /**
      * Also known as LST
      * http://en.wikipedia.org/wiki/Sidereal_time
@@ -122,28 +140,17 @@ public class DateTimeUtil {
     public final Date getLocalSidTimeDate(final Date date) {
         final double jd = getJdTimeDate(date);
 
-        /*
-        final double a = 18.697374558D + (24.06570982441908D * (jd - 2451545.0D));
-         */
-
-        final double a = getSiderealDegrees(jd) / DEGREES_PER_HOUR;
+        double a = getSiderealDegrees(jd) / Constants.DEGREES_PER_HOUR;
+        //FIXME
+        if (a < 0D) {
+            a = Constants.DEGREES_IN_CIRCLE - (Math.abs(a) % Constants.DEGREES_IN_CIRCLE);
+        }
 
         double gmstHours = a % Constants.HOURS_PER_DAY;
         double gmstMinutes = ((a % Constants.HOURS_PER_DAY) * Constants.MINUTES_PER_HOUR)
                 % Constants.MINUTES_PER_HOUR;
         double gmstSeconds = ((a % Constants.HOURS_PER_DAY) * Constants.MINUTES_PER_HOUR * Constants.SECONDS_PER_MINUTE)
                 % Constants.SECONDS_PER_MINUTE;
-
-        //FIXME test
-        if (gmstHours < 0) {
-            gmstHours += Constants.HOURS_PER_DAY;
-        }
-        if (gmstMinutes < 0) {
-            gmstMinutes += Constants.MINUTES_PER_HOUR;
-        }
-        if (gmstSeconds < 0) {
-            gmstSeconds += Constants.SECONDS_PER_MINUTE;
-        }
 
         final String dateString = dateTimeFormat.format(date);
         final int dateYear = Integer.valueOf(dateString.substring(0, 4));
@@ -162,18 +169,63 @@ public class DateTimeUtil {
     }
 
     /**
+     * http://www.cv.nrao.edu/~rfisher/Ephemerides/times.html
+     * @param jd
+     * @return GmstSiderealSeconds
+     */
+    @Deprecated
+    public final double getGmstSeconds(final double jd) {
+        final double julianCenturiesSinceJ2000 = getJulianCenturiesSinceJ2000(jd);
+        final double gmstSiderealSeconds =
+                SIDEREAL_GMST_CONSTANT_0
+                + (SIDEREAL_GMST_CONSTANT_1 * julianCenturiesSinceJ2000)
+                + (SIDEREAL_GMST_CONSTANT_2 * Math.pow(julianCenturiesSinceJ2000, 2))
+                - (SIDEREAL_GMST_CONSTANT_3 * Math.pow(julianCenturiesSinceJ2000, 3));
+        return gmstSiderealSeconds;
+    }
+
+    /**
+     * http://answers.yahoo.com/question/index?qid=20070830185150AAoNT4i
+     * @param jd
+     * @return gmstSiderealHours
+     */
+    @Deprecated
+    public final double getGmstHours(final double jd) {
+        final double julianCenturiesSinceJ2000 = getJulianCenturiesSinceJ2000(jd);
+        final double h = 0D;
+        final double gmstSiderealHours =
+                GMST_HOUR_CONSTANT_1
+                + (GMST_HOUR_CONSTANT_2 * julianCenturiesSinceJ2000)
+                + (GMST_HOUR_CONSTANT_3 * h)
+                - (GMST_HOUR_CONSTANT_4 * Math.pow(julianCenturiesSinceJ2000, 2));
+        return gmstSiderealHours;
+    }
+
+    /**
      * http://de.wikipedia.org/wiki/Sternzeit#Berechnung_der_Sternzeit
      * @param jd
      * @return sidereal time in degrees.
      */
     public final double getSiderealDegrees(final double jd) {
-        final double t = getJulianCenturiesSinceJ2000(jd);
-        final double deg =
+        final double julianCenturiesSinceJ2000 = getJulianCenturiesSinceJ2000(jd);
+        final double siderealDegrees =
                 Constants.MEAN_LONGITUDE_OF_THE_SUN_PRECISE
-                + (SIDEREAL_CONSTANT_1 * t)
-                + ((Math.pow(t, 2)) / SIDEREAL_CONSTANT_2)
-                - ((Math.pow(t, 3)) / SIDEREAL_CONSTANT_3);
-        return deg;
+                + (SIDEREAL_CONSTANT_1 * julianCenturiesSinceJ2000)
+                + ((Math.pow(julianCenturiesSinceJ2000, 2)) / SIDEREAL_CONSTANT_2)
+                - ((Math.pow(julianCenturiesSinceJ2000, 3)) / SIDEREAL_CONSTANT_3);
+        return siderealDegrees;
+    }
+
+    /**
+     * http://en.wikipedia.org/wiki/Sidereal_time#Definition
+     * loss of precision of 0.1 second per century
+     * @param decimalDays
+     * @return sidereal time in hours
+     */
+    public final double getSiderealHours(final double jd) {
+        final double daysSinceJ2000 = jd - Constants.JULIAN_DAY_AT_01_01_2000;
+        final double siderealHours = SIDEREAL_HOUR_CONSTANT_1 + (SIDEREAL_HOUR_CONSTANT_2 * daysSinceJ2000);
+        return siderealHours;
     }
 
     /**
@@ -206,7 +258,6 @@ public class DateTimeUtil {
                 - (y / LEAP_YEAR_CONSTANT_100)
                 + (y / LEAP_YEAR_CONSTANT_400)
                 - JDN_OFFSET;
-//      return Double.valueOf(jdn).longValue();
         return jdn;
     }
 
@@ -266,7 +317,7 @@ public class DateTimeUtil {
     }
 
     public final double convertHoursToDegree(final double starTimeHours) {
-        return starTimeHours * DEGREES_PER_HOUR;
+        return starTimeHours * Constants.DEGREES_PER_HOUR;
     }
 
     public final double getDecimalHours(final Date date) {

@@ -2,7 +2,9 @@ package astrochart.client;
 
 
 import java.util.Date;
+import astrochart.client.util.Constants;
 import astrochart.client.util.DateTimeUtil;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.junit.client.GWTTestCase;
 
 
@@ -44,6 +46,35 @@ public class DateTimeUtilTester extends GWTTestCase {
         assertEquals(2453954.0D, jdn);
         final double jdo = dateTimeUtil.getJulianDayNumberTimeDropped(date);
         assertEquals(2453953.5D, jdo);
+    }
+
+    /**
+     * Does not compute!
+     * @throws Exception
+     */
+    public final void testGmstSidereal() throws Exception {
+        final double jd = 2456038.9600D;
+
+
+        final double gmstSiderealSeconds = dateTimeUtil.getGmstSeconds(jd);
+        System.out.println("gmstSiderealSeconds: " + gmstSiderealSeconds);
+        final double starTimeHours = (gmstSiderealSeconds / Constants.SECONDS_PER_HOUR);
+        System.out.println("starTimeHours: " + starTimeHours);
+        final double gmstSiderealDegrees2 = dateTimeUtil.convertHoursToDegree(starTimeHours);
+        System.out.println("gmstSiderealDegrees2: " + gmstSiderealDegrees2);
+        System.out.println("gmstSiderealDegrees2: " + gmstSiderealDegrees2 % Constants.DEGREES_IN_CIRCLE);
+
+        final double gmstHours = dateTimeUtil.getGmstHours(jd);
+        System.out.println("gmstHours: " + gmstHours);
+        System.out.println("gmstDeg: " + gmstHours  * Constants.DEGREES_PER_HOUR);
+
+
+        final double gmstSiderealHours = dateTimeUtil.getSiderealHours(jd);
+        final double gmstSiderealDegrees = dateTimeUtil.getSiderealDegrees(jd);
+        final NumberFormat nf = NumberFormat.getFormat("0.00000");
+        assertEquals(nf.format(gmstSiderealDegrees), nf.format(gmstSiderealHours * Constants.DEGREES_PER_HOUR));
+        System.out.println("gmstSiderealDegrees: " + nf.format(gmstSiderealDegrees));
+        System.out.println("gmstSiderealDegrees: " + gmstSiderealDegrees % Constants.DEGREES_IN_CIRCLE);
     }
 
     public final void testJulianCenturies() throws Exception {

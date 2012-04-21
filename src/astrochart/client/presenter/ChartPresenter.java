@@ -304,20 +304,22 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
         } else {
             localDate = display.getTimeEntry().getLocalDate();
         }
-        display.getUtcLabel().setTitle(
-                "As Time in your local timezone: \n" + dateTimeUtil.formatLocalDate(localDate) + display.getTimeEntry().getClientTimezone());
-        display.getUtcLabel().setText(dateTimeUtil.formatDateAsUtc(localDate));
 
         utcDate = dateTimeUtil.getUtcDate(localDate);
-        display.getUtcJdLabel().setTitle(
-                "As JD Time in your local timezone: \n" + dateTimeUtil.getFormattedJdTimeDate(localDate) + display.getTimeEntry().getClientTimezone());
+
+        final String timeZone = display.getTimeEntry().getClientTimezone();
+
+        display.getUtcLabel().setText(dateTimeUtil.formatDateAsUtc(localDate));
+        display.getUtcLabel().setTitle("As Time in your local timezone: \n" + dateTimeUtil.formatLocalDate(utcDate) + timeZone);
+
         display.getUtcJdLabel().setText(dateTimeUtil.getFormattedJdTimeDate(utcDate));
 
+        display.getUtcJdLabel().setTitle("As JD Time in your local timezone: \n" + dateTimeUtil.getFormattedJdTimeDate(localDate) + timeZone);
+
         final Date sidDate = dateTimeUtil.getLocalSidTimeDate(localDate); // also known as LST
-        final Date utcSidDate = dateTimeUtil.getLocalSidTimeDate(localDate); // also known as GMST
-        display.getUtcSidLabel().setTitle(
-                "As Sidereal Time in your local timezone: \n" + dateTimeUtil.formatLocalDate(sidDate) + display.getTimeEntry().getClientTimezone());
-        display.getUtcSidLabel().setText(dateTimeUtil.formatDateAsUtc(utcSidDate));
+        final Date utcSidDate = dateTimeUtil.getLocalSidTimeDate(utcDate); // also known as GMST
+        display.getUtcSidLabel().setTitle("As Sidereal Time in your local timezone: \n" + dateTimeUtil.formatLocalDate(sidDate) + timeZone);
+        display.getUtcSidLabel().setText(dateTimeUtil.formatLocalDate(utcSidDate));
 
         epochService.readEpoch(utcSidDate, new AsyncCallback<Epoch>() {
             @Override

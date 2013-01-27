@@ -1,0 +1,13 @@
+/.git
+/.gwt
+
+/.settings
+
+/gwt-unitCache
+
+/www-test
+
+/test-classes
+/.project
+
+/.classpath

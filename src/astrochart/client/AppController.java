@@ -56,8 +56,7 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
                 }
             }
         });
-
-        tabPanel.setAnimationEnabled(true); // XXX
+        //tabPanel.setAnimationEnabled(true);
         tabPanel.add(chartView.asWidget(), "Chart");
         tabPanel.add(infoView.asWidget(), "Info");
     }

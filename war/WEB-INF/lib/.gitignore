@@ -1,6 +1,7 @@
-/appengine-api-1.0-sdk-1.6.4.jar
-/appengine-api-labs-1.6.4.jar
-/appengine-jsr107cache-1.6.4.jar
+/appengine-api-1.0-sdk-1.8.1.1.jar
+/appengine-api-labs.jar
+/appengine-endpoints.jar
+/appengine-jsr107cache-1.8.1.1.jar
 /datanucleus-appengine-1.0.10.final.jar
 /datanucleus-core-1.1.5.jar
 /datanucleus-jpa-1.1.5.jar
@@ -10,7 +11,3 @@
 /gwt-servlet.jar
 /jdo2-api-2.3-eb.jar
 /jsr107cache-1.1.jar
-/appengine-api-1.0-sdk-1.7.4.jar
-/appengine-api-labs.jar
-/appengine-endpoints.jar
-/appengine-jsr107cache-1.7.4.jar

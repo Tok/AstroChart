@@ -117,19 +117,26 @@ public class AdminPresenter implements Presenter {
                 //Fr 01 06:42:57 10CP36 07VI24 18CP00 20AQ04 29AR32 21LI12 25LI38 17AR44 17VI18 02TA24 20PI56
 
                 final Epoch epoch = new Epoch();
-                String monthString = String.valueOf(epochMonth.getNumber());
-                if (monthString.length() == 1) {
-                    monthString = "0" + monthString;
-                }
+                final String monthString = addZeroIfNeeded(String.valueOf(epochMonth.getNumber()));
                 epoch.setSidDate(format.parse(
                     split[1] + " " + monthString + " " + epochYear + " " + split[2]
                 ));
                 epoch.setDay(weekday.getAbbreviation());
                 for (final Planet planet : Planet.values()) {
-                    epoch.setPosition(planet, split[planet.getToken()]);
+                    if (!planet.equals(Planet.SouthNode)) {
+                        epoch.setPosition(planet, split[planet.getToken()]);
+                    }
                 }
                 submitEpoch(epoch);
             }
+        }
+    }
+
+    private String addZeroIfNeeded(final String monthString) {
+        if (monthString.length() == 1) {
+            return "0" + monthString;
+        } else {
+            return monthString;
         }
     }
 

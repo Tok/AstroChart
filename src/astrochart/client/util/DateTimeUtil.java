@@ -6,10 +6,10 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.i18n.client.TimeZone;
 
 public class DateTimeUtil {
+    public static final double J_CONSTANT = 2451545.0009D;
     private static final long MS_2000 = 946684800000L; //2000-01-01 00:00:00 +0000 in milliseconds
     private static final double JD_2000 = Constants.JULIAN_DAY_AT_01_01_2000 - Constants.HALF_JULIAN_DAY; //2000-01-01 00:00:00 as JD
     private static final long MS_PER_DAY = 86400000L;
-    public static final double J_CONSTANT = 2451545.0009D;
     private static final double DAYS_PER_YEAR = 365D;
     private static final long MONTHS_PER_YEAR = 12L;
     private static final double DAYS_PER_JULIAN_CENTURY = 36525D;
@@ -77,13 +77,18 @@ public class DateTimeUtil {
     }
 
     public final String formatLocalDate(final Date localDate, final String timeZone) {
-        int timeZoneMinutes = 0;
-        if (timeZone.contains("+")) {
-            timeZoneMinutes = Double.valueOf(Double.valueOf(timeZone.split("\\+")[1]) * Constants.MINUTES_PER_HOUR).intValue();
-        } else if (timeZone.contains("-")) {
-            timeZoneMinutes = Double.valueOf(Double.valueOf(timeZone.split("\\-")[1]) * Constants.MINUTES_PER_HOUR).intValue();
-        }
+        final int timeZoneMinutes = getTimeZoneMinutes(timeZone);
         return dateTimeFormat.format(localDate, TimeZone.createTimeZone(timeZoneMinutes));
+    }
+
+    private int getTimeZoneMinutes(final String timeZone) {
+        if (timeZone.contains("+")) {
+            return Double.valueOf(Double.valueOf(timeZone.split("\\+")[1]) * Constants.MINUTES_PER_HOUR).intValue();
+        } else if (timeZone.contains("-")) {
+            return Double.valueOf(Double.valueOf(timeZone.split("\\-")[1]) * Constants.MINUTES_PER_HOUR).intValue();
+        } else {
+            return 0;
+        }
     }
 
     public final Date getUtcDate(final Date localDate) {
@@ -139,17 +144,11 @@ public class DateTimeUtil {
      */
     public final Date getLocalSidTimeDate(final Date date) {
         final double jd = getJdTimeDate(date);
+        final double a = clampA(getSiderealDegrees(jd) / Constants.DEGREES_PER_HOUR);
 
-        double a = getSiderealDegrees(jd) / Constants.DEGREES_PER_HOUR;
-        //FIXME
-        if (a < 0D) {
-            a = Constants.DEGREES_IN_CIRCLE - (Math.abs(a) % Constants.DEGREES_IN_CIRCLE);
-        }
-
-        double gmstHours = a % Constants.HOURS_PER_DAY;
-        double gmstMinutes = ((a % Constants.HOURS_PER_DAY) * Constants.MINUTES_PER_HOUR)
-                % Constants.MINUTES_PER_HOUR;
-        double gmstSeconds = ((a % Constants.HOURS_PER_DAY) * Constants.MINUTES_PER_HOUR * Constants.SECONDS_PER_MINUTE)
+        final double gmstHours = a % Constants.HOURS_PER_DAY;
+        final double gmstMinutes = ((a % Constants.HOURS_PER_DAY) * Constants.MINUTES_PER_HOUR) % Constants.MINUTES_PER_HOUR;
+        final double gmstSeconds = ((a % Constants.HOURS_PER_DAY) * Constants.MINUTES_PER_HOUR * Constants.SECONDS_PER_MINUTE)
                 % Constants.SECONDS_PER_MINUTE;
 
         final String dateString = dateTimeFormat.format(date);
@@ -166,6 +165,14 @@ public class DateTimeUtil {
                 + gmstHoursString + ":" + gmstMinutesString + ":" + gmstSecondsString;
 
         return dateTimeFormat.parse(gmstDateString);
+    }
+
+    private double clampA(final double a) {
+        if (a < 0D) {
+            return Constants.DEGREES_IN_CIRCLE - (Math.abs(a) % Constants.DEGREES_IN_CIRCLE);
+        } else {
+            return a;
+        }
     }
 
     /**
@@ -354,11 +361,15 @@ public class DateTimeUtil {
     }
 
     public final double getLocalSiderealDegrees(final double siderealDegrees, final double longitude) {
-        double result = (siderealDegrees % Constants.DEGREES_IN_CIRCLE) + longitude;
-        if (result < 0) {
-            result = result + Constants.DEGREES_IN_CIRCLE;
+        return clampResult((siderealDegrees % Constants.DEGREES_IN_CIRCLE) + longitude);
+    }
+
+    private double clampResult(final double result) {
+        if (result < 0D) {
+            return result + Constants.DEGREES_IN_CIRCLE;
+        } else {
+            return result;
         }
-        return result;
     }
 
     /**

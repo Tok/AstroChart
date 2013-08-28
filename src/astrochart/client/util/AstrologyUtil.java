@@ -80,13 +80,16 @@ public class AstrologyUtil {
     public final long calculateRashimanaSeconds(final ZodiacSign sign, final double latitude) {
         final int roundedLat = Double.valueOf(latitude).intValue();
         final int charakhandas = esl.calculateCharakhandas(sign, roundedLat);
-        long asus = 0L;
-        if (sign.hasLongAscension()) {
-            asus = sign.getRashimanaGroup().getEquatorialAsus() + charakhandas;
-        } else {
-            asus = sign.getRashimanaGroup().getEquatorialAsus() - charakhandas;
-        }
+        final long asus = getAsus(sign, charakhandas);
         return dateTimeUtil.convertAsusToSiderealSeconds(asus);
+    }
+
+    private long getAsus(final ZodiacSign sign, final int charakhandas) {
+        if (sign.hasLongAscension()) {
+            return sign.getRashimanaGroup().getEquatorialAsus() + charakhandas;
+        } else {
+            return sign.getRashimanaGroup().getEquatorialAsus() - charakhandas;
+        }
     }
 
     public final double calculateEclipticLongitude(final double julianDayNumber) {
@@ -114,8 +117,8 @@ public class AstrologyUtil {
      * @return
      */
     public final double calculateEclipticalLength(final double eclipticLongitude, final double meanAnormaly) {
-        double el = Math.toRadians(eclipticLongitude % Constants.DEGREES_IN_CIRCLE);
-        double ma = Math.toRadians(meanAnormaly % Constants.DEGREES_IN_CIRCLE);
+        final double el = Math.toRadians(eclipticLongitude % Constants.DEGREES_IN_CIRCLE);
+        final double ma = Math.toRadians(meanAnormaly % Constants.DEGREES_IN_CIRCLE);
         final double result = el
             + ((2 * EARTH_ECCENTRICITY * Math.sin(ma))
             + ((5.0D / 4.0D) * Math.pow(EARTH_ECCENTRICITY, 2) * Math.sin(2 * EARTH_ECCENTRICITY))
@@ -134,15 +137,20 @@ public class AstrologyUtil {
      * @return
      */
     public final double calculateRightAscension(final double eclipticInclination, final double eclipticalLength) {
-        double eclipticInclinationRadians = Math.toRadians(eclipticInclination);
-        double eclipticalLengthRadians = Math.toRadians(eclipticalLength);
+        final double eclipticInclinationRadians = Math.toRadians(eclipticInclination);
+        final double eclipticalLengthRadians = Math.toRadians(eclipticalLength);
         final double argument = (Math.cos(eclipticInclinationRadians) * Math.sin(eclipticalLengthRadians)) / Math.cos(eclipticalLengthRadians);
-        double result = Math.atan(argument);
-        result = Math.toDegrees(result);
+        final double atan = Math.atan(argument);
+        final double result = Math.toDegrees(atan);
+        return clampResult(result);
+    }
+
+    private double clampResult(final double result) {
         if (result < 0.0D) {
-            result = result + (Constants.DEGREES_IN_CIRCLE / 2);
+            return result + (Constants.DEGREES_IN_CIRCLE / 2);
+        } else {
+            return result;
         }
-        return result;
     }
 
     public final double calculateDeclination(final double eclipticInclination, final double eclipticalLength) {
@@ -162,13 +170,17 @@ public class AstrologyUtil {
         final double divisor =
                 (Math.cos(Math.toRadians(hourAngle)) * Math.sin(Math.toRadians(latitude)))
                 - (Math.tan(Math.toRadians(declination)) * Math.cos(Math.toRadians(latitude)));
-        double azimuth =
-                Math.atan(Math.sin(Math.toRadians(hourAngle)) / divisor);
-        azimuth = Math.toDegrees(azimuth);
+        final double azimuthAtan = Math.atan(Math.sin(Math.toRadians(hourAngle)) / divisor);
+        final double azimuth = Math.toDegrees(azimuthAtan);
+        return clampAzimuth(azimuth, divisor);
+    }
+
+    private double clampAzimuth(final double azimuth, final double divisor) {
         if (divisor < 0D) {
-            azimuth = azimuth + (Constants.DEGREES_IN_CIRCLE / 2);
+            return azimuth + (Constants.DEGREES_IN_CIRCLE / 2);
+        } else {
+            return azimuth;
         }
-        return azimuth;
     }
 
     public final double calculateAzimuthNorth(final double hourAngle, final double latitude, final double declination) {
@@ -192,9 +204,9 @@ public class AstrologyUtil {
      * @return
      */
     private double calculateRefraction(final double heightAngle) {
-        double term = heightAngle + (SAEMUNDSON_REFRACTION_CONSTANT_2 / (heightAngle + SAEMUNDSON_REFRACTION_CONSTANT_3));
-        term = Math.toRadians(term);
-        return SAEMUNDSON_REFRACTION_CONSTANT_1 / Math.tan(term);
+        final double term = heightAngle + (SAEMUNDSON_REFRACTION_CONSTANT_2 / (heightAngle + SAEMUNDSON_REFRACTION_CONSTANT_3));
+        final double termRadians = Math.toRadians(term);
+        return SAEMUNDSON_REFRACTION_CONSTANT_1 / Math.tan(termRadians);
     }
 
     public final double calculateRefractionDegrees(final double heightAngle) {
@@ -411,11 +423,16 @@ public class AstrologyUtil {
     public final double getFirstHorizontEclipticSection(final double eclipticLongitudeTan) {
         final double eclipticLongitude = Math.atan(eclipticLongitudeTan);
         final double eclipticLongitudeDeg = Math.toDegrees(eclipticLongitude);
-        double firstS1 = (eclipticLongitudeDeg + (Constants.DEGREES_IN_CIRCLE / 2)) % Constants.DEGREES_IN_CIRCLE;
+        final double firstS1 = (eclipticLongitudeDeg + (Constants.DEGREES_IN_CIRCLE / 2)) % Constants.DEGREES_IN_CIRCLE;
+        return clampS1(firstS1);
+    }
+
+    private double clampS1(final double firstS1) {
         if (firstS1 >= (Constants.DEGREES_IN_CIRCLE / 2)) {
-            firstS1 = firstS1 - (Constants.DEGREES_IN_CIRCLE / 2);
+            return firstS1 - (Constants.DEGREES_IN_CIRCLE / 2);
+        } else {
+            return firstS1;
         }
-        return firstS1;
     }
 
     public final double getSecondHorizontEclipticSection(final double eclipticLongitudeTan) {

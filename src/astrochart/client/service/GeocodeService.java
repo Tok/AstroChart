@@ -6,6 +6,6 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("geocode")
 public interface GeocodeService extends RemoteService {
-    GeocodeData getGeocodeData(String cityName);
+    GeocodeData getGeocodeData(final String cityName);
     GeocodeData getGeocodeDataForIp();
 }

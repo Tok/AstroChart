@@ -100,8 +100,8 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
         TimeEntry getTimeEntry();
     }
 
-    public ChartPresenter(final HandlerManager eventBus, final DateTimeUtil dateTimeUtil,
-            final TabPanel tabPanel, final Display view, final Date providedUtcDate) {
+    public ChartPresenter(final HandlerManager eventBus, final DateTimeUtil dateTimeUtil, final TabPanel tabPanel, final Display view,
+            final Date providedUtcDate) {
         super(eventBus, tabPanel);
         this.dateTimeUtil = dateTimeUtil;
         this.providedUtcDate = providedUtcDate;
@@ -123,35 +123,10 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
             }
         });
         for (final Planet planet : Planet.values()) {
-            this.display.getPlanetCheckBox(planet).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-                @Override
-                public void onValueChange(final ValueChangeEvent<Boolean> event) {
-                    regenerateChart();
-                }
-            });
+            this.display.getPlanetCheckBox(planet).addValueChangeHandler(createDefaultValueChangeHandler());
         }
-        this.display.getSelectAllPlanetsButton().addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(final ClickEvent event) {
-                disableUpdate = true;
-                for (final Planet planet : Planet.values()) {
-                    display.getPlanetCheckBox(planet).setValue(true);
-                }
-                disableUpdate = false;
-                regenerateChart();
-            }
-        });
-        this.display.getUnselectAllPlanetsButton().addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(final ClickEvent event) {
-                disableUpdate = true;
-                for (final Planet planet : Planet.values()) {
-                    display.getPlanetCheckBox(planet).setValue(false);
-                }
-                disableUpdate = false;
-                regenerateChart();
-            }
-        });
+        this.display.getSelectAllPlanetsButton().addClickHandler(createPlanetsChangeHandler(true));
+        this.display.getUnselectAllPlanetsButton().addClickHandler(createPlanetsChangeHandler(false));
         this.display.getHousesListBox().addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(final ChangeEvent event) {
@@ -161,12 +136,7 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
             }
         });
         for (final AspectType type : AspectType.values()) {
-            this.display.getAspectCheckBox(type).addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-                @Override
-                public void onValueChange(final ValueChangeEvent<Boolean> event) {
-                    regenerateChart();
-                }
-            });
+            this.display.getAspectCheckBox(type).addValueChangeHandler(createDefaultValueChangeHandler());
             this.display.getAspectListBox(type).addChangeHandler(new ChangeHandler() {
                 @Override
                 public void onChange(final ChangeEvent event) {
@@ -184,28 +154,8 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
 
             }
         });
-        this.display.getSelectAllAspectsButton().addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(final ClickEvent event) {
-                disableUpdate = true;
-                for (final AspectType aspectType : AspectType.values()) {
-                    display.getAspectCheckBox(aspectType).setValue(true);
-                }
-                disableUpdate = false;
-                regenerateChart();
-            }
-        });
-        this.display.getUnselectAllAspectsButton().addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(final ClickEvent event) {
-                disableUpdate = true;
-                for (final AspectType aspectType : AspectType.values()) {
-                    display.getAspectCheckBox(aspectType).setValue(false);
-                }
-                disableUpdate = false;
-                regenerateChart();
-            }
-        });
+        this.display.getSelectAllAspectsButton().addClickHandler(createAspectChangeHandler(true));
+        this.display.getUnselectAllAspectsButton().addClickHandler(createAspectChangeHandler(false));
         this.display.getLocationTextBox().addKeyUpHandler(new KeyUpHandler() {
             @Override
             public void onKeyUp(final KeyUpEvent event) {
@@ -220,34 +170,10 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
                 updateGeodataByCityName();
             }
         });
-        this.display.getLatitudeTextBox().addKeyUpHandler(new KeyUpHandler() {
-            @Override
-            public void onKeyUp(final KeyUpEvent event) {
-                if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-                    processCustomGeocode(true);
-                }
-            }
-        });
-        this.display.getSubmitLatitudeButton().addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(final ClickEvent event) {
-                processCustomGeocode(true);
-            }
-        });
-        this.display.getLongitudeTextBox().addKeyUpHandler(new KeyUpHandler() {
-            @Override
-            public void onKeyUp(final KeyUpEvent event) {
-                if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-                    processCustomGeocode(true);
-                }
-            }
-        });
-        this.display.getSubmitLongitudeButton().addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(final ClickEvent event) {
-                processCustomGeocode(true);
-            }
-        });
+        this.display.getSubmitLatitudeButton().addClickHandler(createGeocodeClickHandler());
+        this.display.getSubmitLongitudeButton().addClickHandler(createGeocodeClickHandler());
+        this.display.getLatitudeTextBox().addKeyUpHandler(createGeocodeKeyUpHandler());
+        this.display.getLongitudeTextBox().addKeyUpHandler(createGeocodeKeyUpHandler());
     }
 
     public final void bindBus() {
@@ -298,34 +224,26 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
 
     private void updateEpoch(final Date inputLocalDate) {
         display.getStatusLabel().setText("Updating positions.");
-
         if (inputLocalDate != null) {
             localDate = inputLocalDate;
         } else {
             localDate = display.getTimeEntry().getLocalDate();
         }
-
         utcDate = dateTimeUtil.getUtcDate(localDate);
-
         final String timeZone = display.getTimeEntry().getClientTimezone();
-
         display.getUtcLabel().setText(dateTimeUtil.formatDateAsUtc(localDate));
         display.getUtcLabel().setTitle("As Time in your local timezone: \n" + dateTimeUtil.formatLocalDate(utcDate) + timeZone);
-
         display.getUtcJdLabel().setText(dateTimeUtil.getFormattedJdTimeDate(utcDate));
-
         display.getUtcJdLabel().setTitle("As JD Time in your local timezone: \n" + dateTimeUtil.getFormattedJdTimeDate(localDate) + timeZone);
-
         final Date sidDate = dateTimeUtil.getLocalSidTimeDate(localDate); // also known as LST
         final Date utcSidDate = dateTimeUtil.getLocalSidTimeDate(utcDate); // also known as GMST
         display.getUtcSidLabel().setTitle("As Sidereal Time in your local timezone: \n" + dateTimeUtil.formatLocalDate(sidDate) + timeZone);
         display.getUtcSidLabel().setText(dateTimeUtil.formatLocalDate(utcSidDate));
-
         epochService.readEpoch(utcSidDate, new AsyncCallback<Epoch>() {
             @Override
             public void onSuccess(final Epoch result) {
                 epoch = result;
-                for (Planet planet : Planet.values()) {
+                for (final Planet planet : Planet.values()) {
                     final Label label = display.getPlanetLabel(planet);
                     label.setText(result.getPositionDegreeString(planet));
                     label.setTitle(result.getPositionString(planet));
@@ -333,6 +251,7 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
                 display.getStatusLabel().setText("Positions updated.");
                 processCustomGeocode(false);
             }
+
             @Override
             public void onFailure(final Throwable caught) {
                 if (caught instanceof EpochNotFoundException) {
@@ -349,7 +268,7 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
      */
     @SuppressWarnings("unused")
     private void tryToGetGeolocationFromBrowser() {
-        final Geolocation geolocation = Geolocation.getIfSupported(); //experimental
+        final Geolocation geolocation = Geolocation.getIfSupported(); // experimental
         geolocation.getCurrentPosition(new Callback<Position, PositionError>() {
             @Override
             public void onSuccess(final Position result) {
@@ -360,6 +279,7 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
                 display.getLongitudeTextBox().setTitle(astroUtil.convertDegrees(coords.getLongitude()));
                 processCustomGeocode(true);
             }
+
             @Override
             public void onFailure(final PositionError reason) {
                 display.getStatusLabel().setText("Fail: Not able to get geolocation data from browser.");
@@ -376,7 +296,8 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
             }
             @Override
             public void onFailure(final Throwable caught) {
-                display.getStatusLabel().setText("Fail: Getting geocode data from IP. Please enter a city name or provide the latitude and longitude manually.");
+                display.getStatusLabel().setText(
+                        "Fail: Getting geocode data from IP. Please enter a city name or provide the latitude and longitude manually.");
             }
         });
     }
@@ -425,7 +346,7 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
 
     private void processGeocodeData(final GeocodeData geocode) {
         if (geocode == null || (geocode.getCityName().equals("") && geocode.getLatitude() == 0.0D && geocode.getLongitude() == 0.0D)) {
-            assert true; //ignore
+            assert true; // ignore
         } else {
             display.getLocationTextBox().setText(geocode.getCityName());
 
@@ -469,4 +390,60 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
         });
     }
 
+    private ClickHandler createAspectChangeHandler(final boolean value) {
+        return new ClickHandler() {
+            @Override
+            public void onClick(final ClickEvent event) {
+                disableUpdate = true;
+                for (final AspectType aspectType : AspectType.values()) {
+                    display.getAspectCheckBox(aspectType).setValue(value);
+                }
+                disableUpdate = false;
+                regenerateChart();
+            }
+        };
+    }
+
+    private ClickHandler createPlanetsChangeHandler(final boolean value) {
+        return new ClickHandler() {
+            @Override
+            public void onClick(final ClickEvent event) {
+                disableUpdate = true;
+                for (final Planet planet : Planet.values()) {
+                    display.getPlanetCheckBox(planet).setValue(value);
+                }
+                disableUpdate = false;
+                regenerateChart();
+            }
+        };
+    }
+
+    private ValueChangeHandler<Boolean> createDefaultValueChangeHandler() {
+        return new ValueChangeHandler<Boolean>() {
+            @Override
+            public void onValueChange(final ValueChangeEvent<Boolean> event) {
+                regenerateChart();
+            }
+        };
+    }
+
+    private ClickHandler createGeocodeClickHandler() {
+        return new ClickHandler() {
+            @Override
+            public void onClick(final ClickEvent event) {
+                processCustomGeocode(true);
+            }
+        };
+    }
+
+    private KeyUpHandler createGeocodeKeyUpHandler() {
+        return new KeyUpHandler() {
+            @Override
+            public void onKeyUp(final KeyUpEvent event) {
+                if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+                    processCustomGeocode(true);
+                }
+            }
+        };
+    }
 }

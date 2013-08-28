@@ -15,5 +15,4 @@ public enum RashimanaGroup {
     public final int getEquatorialAsus() {
         return equatorialAsus;
     }
-
 }

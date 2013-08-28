@@ -50,18 +50,16 @@ public class EquinocticalShaddowLengths {
     }
 
     private int calculatePalas(final ZodiacSign sign, final int latitude) {
-        int result = 0;
         final double shaddowLenght = getShaddowLength(latitude);
         if (RashimanaGroup.I.equals(sign.getRashimanaGroup())) {
-            result = (int) (shaddowLenght * CHARAKHANDA_MULTIPLICATOR_1);
+            return (int) (shaddowLenght * CHARAKHANDA_MULTIPLICATOR_1);
         } else if (RashimanaGroup.II.equals(sign.getRashimanaGroup())) {
-            result = (int) (shaddowLenght * CHARAKHANDA_MULTIPLICATOR_2);
+            return (int) (shaddowLenght * CHARAKHANDA_MULTIPLICATOR_2);
         } else if (RashimanaGroup.III.equals(sign.getRashimanaGroup())) {
-            result = (int) (shaddowLenght * CHARAKHANDA_MULTIPLICATOR_3);
+            return (int) (shaddowLenght * CHARAKHANDA_MULTIPLICATOR_3);
         } else {
             throw new IllegalArgumentException("Sign " + sign + " has illegal rashomana group: " + sign.getRashimanaGroup());
         }
-        return result;
     }
 
 }

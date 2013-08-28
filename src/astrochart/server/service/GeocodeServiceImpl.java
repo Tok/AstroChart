@@ -38,7 +38,6 @@ public class GeocodeServiceImpl extends RemoteServiceServlet implements GeocodeS
     }
 
     private GeocodeData makeGeocodeRequest(final String geocodeUrl) {
-        GeocodeData result;
         try {
             final URL url = new URL(geocodeUrl);
             final BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -46,18 +45,19 @@ public class GeocodeServiceImpl extends RemoteServiceServlet implements GeocodeS
             final JsonElement element = parser.parse(reader);
             reader.close();
             final JsonObject rootObject = element.getAsJsonObject();
-            result = parseJsonGeocodeResult(rootObject);
-        } catch (MalformedURLException e) {
-            result = new GeocodeData();
-            result.setCityName("Error finding location.");
-            result.setLatitude(0.0D);
-            result.setLongitude(0.0D);
-        } catch (IOException e) {
-            result = new GeocodeData();
-            result.setCityName("Error finding location.");
-            result.setLatitude(0.0D);
-            result.setLongitude(0.0D);
+            return parseJsonGeocodeResult(rootObject);
+        } catch (final MalformedURLException e) {
+            return createErrorGeocode();
+        } catch (final IOException e) {
+            return createErrorGeocode();
         }
+    }
+
+    private GeocodeData createErrorGeocode() {
+        final GeocodeData result = new GeocodeData();
+        result.setCityName("Error finding location.");
+        result.setLatitude(0.0D);
+        result.setLongitude(0.0D);
         return result;
     }
 
@@ -86,7 +86,6 @@ public class GeocodeServiceImpl extends RemoteServiceServlet implements GeocodeS
     }
 
     private GeocodeData makeIpGeocodeRequest(final String ipGeocodeUrl) {
-        GeocodeData result;
         try {
             final URL url = new URL(ipGeocodeUrl);
             final BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -94,19 +93,12 @@ public class GeocodeServiceImpl extends RemoteServiceServlet implements GeocodeS
             final JsonElement element = parser.parse(reader);
             reader.close();
             final JsonObject rootObject = element.getAsJsonObject();
-            result = parseJsonIpGeocodeResult(rootObject);
+            return parseJsonIpGeocodeResult(rootObject);
         } catch (final MalformedURLException e) {
-            result = new GeocodeData();
-            result.setCityName("Error finding location.");
-            result.setLatitude(0.0D);
-            result.setLongitude(0.0D);
+            return createErrorGeocode();
         } catch (final IOException e) {
-            result = new GeocodeData();
-            result.setCityName("Error finding location.");
-            result.setLatitude(0.0D);
-            result.setLongitude(0.0D);
+            return createErrorGeocode();
         }
-        return result;
     }
 
     private GeocodeData parseJsonIpGeocodeResult(final JsonObject rootObject) {
@@ -121,7 +113,6 @@ public class GeocodeServiceImpl extends RemoteServiceServlet implements GeocodeS
     }
 
     private String encode(final String in) {
-        String out = in.replaceAll(" ", "%20");
-        return out;
+        return in.replaceAll(" ", "%20");
     }
 }

@@ -117,7 +117,7 @@ public class TimeEntry extends Composite {
         hoursTextBox.setText(String.valueOf(dateTimeUtil.getHours(localDate)));
         minutesTextBox.setText(String.valueOf(dateTimeUtil.getMinutes(localDate)));
         secondsTextBox.setText(String.valueOf(dateTimeUtil.getSeconds(localDate)));
-        double timeZoneOffset = DOM.getElementById("timeZone").getPropertyDouble("value");
+        final double timeZoneOffset = DOM.getElementById("timeZone").getPropertyDouble("value");
         int zoneListIndex = 0;
         for (final TimeZone zone : TimeZone.values()) {
             if (Double.valueOf(timeZoneOffset * Constants.SECONDS_PER_MINUTE).intValue() == zone.getUtcOffsetMinutes()) {
@@ -175,13 +175,13 @@ public class TimeEntry extends Composite {
             }
             statusLabel.setText(status.toString());
             eventBus.fireEvent(new DateUpdatedEvent(localDate));
-        } catch (IllegalArgumentException iae) {
+        } catch (final IllegalArgumentException iae) {
             statusLabel.setText(iae.getMessage());
         }
     }
 
     private void validateSeconds() {
-        int minutes = Integer.valueOf(secondsTextBox.getText());
+        final int minutes = Integer.valueOf(secondsTextBox.getText());
         if (minutes < 0 || minutes > Constants.MINUTES_PER_HOUR - 1) {
             secondsTextBox.setFocus(true);
             throw new IllegalArgumentException("Seconds are out of range.");
@@ -189,7 +189,7 @@ public class TimeEntry extends Composite {
     }
 
     private void validateMinutes() {
-        int minutes = Integer.valueOf(minutesTextBox.getText());
+        final int minutes = Integer.valueOf(minutesTextBox.getText());
         if (minutes < 0 || minutes > Constants.MINUTES_PER_HOUR - 1) {
             minutesTextBox.setFocus(true);
             throw new IllegalArgumentException("Minutes are out of range.");
@@ -197,7 +197,7 @@ public class TimeEntry extends Composite {
     }
 
     private void validateHours() {
-        int hours = Integer.valueOf(hoursTextBox.getText());
+        final int hours = Integer.valueOf(hoursTextBox.getText());
         if (hours < 0 || hours > Constants.HOURS_PER_DAY - 1) {
             hoursTextBox.setFocus(true);
             throw new IllegalArgumentException("Hour is out of range.");
@@ -205,7 +205,7 @@ public class TimeEntry extends Composite {
     }
 
     private void validateYear() {
-        int year = Integer.valueOf(yearTextBox.getText());
+        final int year = Integer.valueOf(yearTextBox.getText());
         if (year < LOWER_BOUNDARY || year > HIGHER_BOUNDARY) {
             yearTextBox.setFocus(true);
             throw new IllegalArgumentException("Year is out of range.");
@@ -213,10 +213,10 @@ public class TimeEntry extends Composite {
     }
 
     private void validateDay() {
-        int day = Integer.valueOf(dayTextBox.getText());
+        final int day = Integer.valueOf(dayTextBox.getText());
         final Month month = Month.valueOf(monthListBox.getValue(monthListBox.getSelectedIndex()));
         if (day < 1 || day > month.getDays()) {
-            int year = Integer.valueOf(yearTextBox.getText());
+            final int year = Integer.valueOf(yearTextBox.getText());
             if (day == month.getDays() + 1 && DateTimeUtil.isLeapYear(year) && month.equals(Month.February)) {
                 dayTextBox.setFocus(true);
                 throw new IllegalArgumentException("Day is out of range. (" + year + " is a leap year).");

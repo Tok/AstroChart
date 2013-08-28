@@ -332,12 +332,12 @@ public class ChartPresenter extends AbstractTabPresenter implements Presenter {
             try {
                 geocode.setLongitude(Double.valueOf(display.getLongitudeTextBox().getText()));
                 processGeocodeData(geocode);
-            } catch (NumberFormatException nfe) {
+            } catch (final NumberFormatException nfe) {
                 final String message = "Fail: Longitude is not numeric.";
                 this.display.getStatusLabel().setText(message);
                 this.display.getLongitudeTextBox().setFocus(true);
             }
-        } catch (NumberFormatException nfe) {
+        } catch (final NumberFormatException nfe) {
             final String message = "Fail: Latitide is not numeric.";
             this.display.getStatusLabel().setText(message);
             this.display.getLatitudeTextBox().setFocus(true);

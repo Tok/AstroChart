@@ -60,7 +60,7 @@ public class EpochServiceImpl extends RemoteServiceServlet implements EpochServi
             if (second == null) {
                 second = (Epoch) cache.get(secondCacheKey);
             }
-        } catch (CacheException e) {
+        } catch (final CacheException e) {
             assert true; // ignore
         }
 
@@ -163,14 +163,8 @@ public class EpochServiceImpl extends RemoteServiceServlet implements EpochServi
                     averageDegrees = averageDegrees - (MINUTES_PER_HOUR / 2);
                 }
                 averageMinutes = (int) averageTotalMinutes % MINUTES_PER_HOUR;
-                String tokenDegrees = String.valueOf(averageDegrees);
-                if (tokenDegrees.length() < 2) {
-                    tokenDegrees = "0" + tokenDegrees;
-                }
-                String tokenMinutes = String.valueOf(averageMinutes);
-                if (tokenMinutes.length() < 2) {
-                    tokenMinutes = "0" + tokenMinutes;
-                }
+                final String tokenDegrees = addZeroIfNeeded(String.valueOf(averageDegrees));
+                final String tokenMinutes = addZeroIfNeeded(String.valueOf(averageMinutes));
                 result.setPosition(planet, tokenDegrees + tokenSign + tokenMinutes);
             }
         }
@@ -186,4 +180,11 @@ public class EpochServiceImpl extends RemoteServiceServlet implements EpochServi
         return result;
     }
 
+    private String addZeroIfNeeded(final String value) {
+        if (value.length() < 2) {
+            return "0" + value;
+        } else {
+            return value;
+        }
+    }
 }

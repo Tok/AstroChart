@@ -95,7 +95,7 @@ public class AppController implements Presenter, ValueChangeHandler<String> {
                 dateString = token.split("/")[1];
                 try {
                     providedUtcDate = dateTimeUtil.getUtcDateFromUtcString(dateString);
-                } catch (IllegalArgumentException iae) {
+                } catch (final IllegalArgumentException iae) {
                     assert true; // ignore
                 }
             }

@@ -31,7 +31,7 @@ public class TimeEntry extends Composite {
     private final TextBox minutesTextBox = new TextBox();
     private final TextBox secondsTextBox = new TextBox();
     private final ListBox timeZoneListBox = new ListBox();
-    private final Button updateButton = new Button("Submit");
+    private final Button updateButton = new Button("Enter");
     private final Label statusLabel = new Label(String.valueOf('\u00A0')); // NBSP
     private final DateTimeFormat dateTimeFormat = DateTimeFormat.getFormat("yyyy.MM.dd HH:mm:ss");
     private int clientOffset;

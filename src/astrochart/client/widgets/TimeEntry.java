@@ -63,7 +63,7 @@ public class TimeEntry extends Composite {
         this.dateTimeUtil = dateTimeUtil;
         localDate = new Date();
 
-        for (Column column : Column.values()) {
+        for (final Column column : Column.values()) {
             flex.setText(0, column.getNumber(), column.name());
         }
 

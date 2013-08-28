@@ -36,7 +36,7 @@ public class EquinocticalShaddowLengths {
     }
 
     public EquinocticalShaddowLengths() {
-        for (ShaddowLength sl : ShaddowLength.values()) {
+        for (final ShaddowLength sl : ShaddowLength.values()) {
             shaddowLengths.put(Integer.valueOf(sl.name().substring(1, 3)), Double.valueOf(sl.getLength()));
         }
     }

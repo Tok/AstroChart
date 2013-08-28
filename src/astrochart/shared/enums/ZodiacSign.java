@@ -36,7 +36,7 @@ public enum ZodiacSign {
     }
 
     public static final ZodiacSign getSignAtDegree(final double degree) {
-        for (ZodiacSign sign : ZodiacSign.values()) {
+        for (final ZodiacSign sign : ZodiacSign.values()) {
             if (degree >= sign.getEclipticLongitude() && degree < sign.getEclipticLongitude() + DEGREES_PER_SIGN) {
                 return sign;
             }
